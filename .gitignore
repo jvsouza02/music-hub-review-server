@@ -1,2 +1,92 @@
-fastapi-archtecture.md
+# ==========================================
+# Python (Arquivos gerados pelo interpretador e builds)
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ==========================================
+# Ambientes Virtuais (Crucial não enviar!)
+# ==========================================
+.venv/
+venv/
+ENV/
+env/
+ENV/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ==========================================
+# Variáveis de Ambiente e Segredos (SEGURANÇA!)
+# ==========================================
+# Ignora os arquivos com senhas e chaves reais
 .env
+.env.[a-zA-Z]*
+! .env.example # NÃO ignora o template de exemplo (esse deve ir para o git)
+
+# ==========================================
+# Banco de Dados Local (SQLite / Docker volumes)
+# ==========================================
+*.db
+*.sqlite3
+# Se subir um banco via docker em pasta local, ignore o volume de dados:
+.docker-data/
+postgres_data/
+
+# ==========================================
+# Ferramentas de Testes, Qualidade e Tipagem
+# ==========================================
+.htmlcov/
+.tox/
+.nosenv/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.mutants/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ==========================================
+# IDEs e Editores de Código (VS Code / PyCharm)
+# ==========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.pydevproject
+
+# ==========================================
+# Sistema Operacional
+# ==========================================
+.DS_Store
+Thumbs.db
+
+# ==========================================
+# Arquivos aleatórios
+# ==========================================
+fastapi-archtecture.md
+exemplo.py

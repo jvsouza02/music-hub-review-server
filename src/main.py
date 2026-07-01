@@ -1,6 +1,14 @@
-def main():
-    print("Hello from music-hub-review-server!")
+from fastapi import FastAPI
+from presentation.api.v1.router import api_v1_router
 
+app = FastAPI()
 
-if __name__ == "__main__":
-    main()
+app.include_router(api_v1_router)
+
+@app.get("/health", tags=["System"])
+def health_check():
+    return {
+        "status": "healthy",
+        "version": "1.0.0",
+        "message": "Music Hub Review Server is running!"
+    }
