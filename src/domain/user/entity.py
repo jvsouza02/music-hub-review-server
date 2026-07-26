@@ -11,5 +11,5 @@ class User(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     username: str = Field(min_length=3, max_length=100)
     email: EmailStr
-    hashed_password: str
-    is_active: StrictBool = Field(default_factory=True)
+    password: str
+    is_active: StrictBool = True

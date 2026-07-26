@@ -15,7 +15,7 @@ class UserService:
         # verificamos se o usuario ja existe
         if await self._repository.get_by_email(email):
             # caso exista, lançar a exceção criada
-            raise EmailAlreadyInUseException(email=email)
+            raise EmailAlreadyInUseException()
 
         # gerar senha hasheada
         hashed_password = generate_password_hash(password)
@@ -24,7 +24,7 @@ class UserService:
         new_user = User(
             username=username,
             email=email,
-            hashed_password=hashed_password,
+            password=hashed_password,
         )
 
         # salvar no banco de dados

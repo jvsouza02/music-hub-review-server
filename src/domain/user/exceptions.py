@@ -1,13 +1,14 @@
-class EmailAlreadyInUseException(Exception):
-    def __init__(self, email: str):
-        self.email = email
-        super().__init__(f"The email {email} is already in use!")
+from src.domain.global_exception import GlobalException
+from http import HTTPStatus
 
-class UserNotFoundException(Exception):
-    def __init__(self, id: str):
-        self.id = id
-        super().__init__(f"User not found!")
+class EmailAlreadyInUseException(GlobalException):
+    def __init__(self, message="Este email já está em uso."):
+        super().__init__(message=message, status_code=HTTPStatus.BAD_REQUEST)
 
-class InvalidPasswordException(Exception):
-    def __init__(self):
-        super().__init__(f"Something went wrong! Incorrect email or password.")
+class UserNotFoundException(GlobalException):
+    def __init__(self, message="User not found."):
+        super().__init__(message=message, status_code=HTTPStatus.NOT_FOUND)
+
+class InvalidPasswordException(GlobalException):
+    def __init__(self, message="Invalid password"):
+        super().__init__(message=message, status_code=HTTPStatus.UNAUTHORIZED)

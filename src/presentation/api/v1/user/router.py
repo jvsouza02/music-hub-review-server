@@ -1,4 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, status, Depends
+from typing import Annotated
+from src.application.user.services import UserService
+from .schema import UserCreateSchema, UserResponseSchema
+from .deps import get_user_service
 
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -17,9 +21,20 @@ async def get_user():
      pass
 
 
-@user_router.post("/")
-async def create_user():
-     pass
+@user_router.post(
+     "/",
+     response_model=UserResponseSchema,
+     status_code=status.HTTP_201_CREATED  
+)
+async def create_user(
+     data: UserCreateSchema,
+     user_service: Annotated[
+          UserService,
+          Depends(get_user_service)
+     ]
+) -> UserResponseSchema:
+     created_user = await user_service.create_user(**data.model_dump())
+     return created_user
 
 
 @user_router.put("/{user_id}")

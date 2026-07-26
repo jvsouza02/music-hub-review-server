@@ -1,7 +1,6 @@
 from fastapi import APIRouter
-from presentation.api.v1.user.router import user_router
+from src.presentation.api.v1.user.router import user_router
 
 api_v1_router = APIRouter(prefix="/api/v1")
-
 
 api_v1_router.include_router(user_router)
