@@ -1,19 +1,25 @@
 from fastapi import APIRouter, status, Depends
 from typing import Annotated
 from src.application.user.services import UserService
+from src.domain.user.entity import User
+from src.presentation.api.v1.auth.deps import get_current_user
 from .schema import UserCreateSchema, UserResponseSchema
 from .deps import get_user_service
 
+
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
-@user_router.get("/")
-async def get_users():
-     pass
+@user_router.get("/", response_model=list[UserResponseSchema])
+async def get_users(
+     user_service: Annotated[UserService, Depends(get_user_service)]
+) -> list[UserResponseSchema]:
+     return await user_service.get_users()
 
-
-@user_router.get("/me")
-async def get_me():
-     pass
+@user_router.get("/me", response_model=UserResponseSchema)
+async def get_me(
+     current_user: Annotated[User, Depends(get_current_user)]
+) -> UserResponseSchema:
+     return current_user
 
 
 @user_router.get("/{user_id}")

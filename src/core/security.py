@@ -4,7 +4,7 @@ import jwt
 from .config import settings
 encode_value: str = settings.model_config['env_file_encoding'] 
 
-def verify_password(password :str, hashed_password :str) -> bool:
+def verify_password(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw( # -> Checa se as senhas são iguais
         password.encode(encode_value),
         hashed_password.encode(encode_value)

@@ -32,3 +32,8 @@ class UserService:
 
         # retornar usuario criado
         return saved_user
+
+
+    async def get_users(self) -> list[User]:
+        return await self._user_repository.get_all_users()
+

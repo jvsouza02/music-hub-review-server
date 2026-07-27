@@ -11,3 +11,6 @@ class IUserRepository(Protocol):
 
     async def get_by_email(self, email: str) -> User | None:
         ...
+
+    async def get_all_users() -> list[User] | None:
+        ...

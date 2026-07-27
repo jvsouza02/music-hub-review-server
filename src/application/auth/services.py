@@ -13,7 +13,7 @@ class AuthService:
         if not saved_user:
             raise InvalidCredentialsException()
 
-        if not verify_password(password, saved_user.password):
+        if not verify_password(password, str(saved_user.password)):
             raise InvalidCredentialsException()
 
         return create_access_token({"sub": str(saved_user.id)})

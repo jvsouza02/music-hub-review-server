@@ -27,7 +27,15 @@ class UserRepository(IUserRepository):
 
 
     async def get_by_id(self, id: UUID) -> User | None:
-        ...
+        stmt = select(UserModel).where(UserModel.id == id)
+
+        result = await self._session.execute(stmt)
+        user_model = result.scalar_one_or_none()
+
+        if not user_model:
+            return None
+
+        return UserMapper.to_entity(model=user_model)
 
     async def get_by_email(self, email: str) -> User | None:
         stmt = select(UserModel).where(UserModel.email == email)
@@ -35,7 +43,16 @@ class UserRepository(IUserRepository):
         result = await self._session.execute(stmt)
         user_model = result.scalar_one_or_none()
 
-        if user_model is None:
+        if not user_model:
             return None
 
         return UserMapper.to_entity(model=user_model)
+
+
+    async def get_all_users(self) -> list[User] | None:
+        stmt = select(UserModel)
+
+        result = await self._session.execute(stmt)
+        users_model = result.scalars().all()
+
+        return [UserMapper.to_entity(model=user) for user in users_model]
