@@ -8,12 +8,12 @@ from src.domain.user.repository import IUserRepository
 class UserService:
     # iniciar construtor injetando o repositorio
     def __init__(self, repository: IUserRepository):
-        self._repository = repository
+        self._user_repository = repository
 
     # criar metodo de criação de usuario, que recebe nome, email e senha
     async def create_user(self, username: str, email: str, password: str) -> User:
         # verificamos se o usuario ja existe
-        if await self._repository.get_by_email(email):
+        if await self._user_repository.get_by_email(email):
             # caso exista, lançar a exceção criada
             raise EmailAlreadyInUseException()
 
@@ -28,7 +28,7 @@ class UserService:
         )
 
         # salvar no banco de dados
-        saved_user = await self._repository.save(new_user)
+        saved_user = await self._user_repository.save(new_user)
 
         # retornar usuario criado
         return saved_user
