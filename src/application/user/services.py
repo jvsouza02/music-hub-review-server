@@ -1,8 +1,9 @@
 # importar entidade, interface de repositorio, exceptions e security para gerar senha hash
 from src.core.security import generate_password_hash
 from src.domain.user.entity import User
-from src.domain.user.exceptions import EmailAlreadyInUseException
+from src.domain.user.exceptions import EmailAlreadyInUseException, UserNotFoundException
 from src.domain.user.repository import IUserRepository
+from uuid import UUID
 
 # criar classe de servico de usuario
 class UserService:
@@ -35,5 +36,22 @@ class UserService:
 
 
     async def get_users(self) -> list[User]:
-        return await self._user_repository.get_all_users()
+        return await self._user_repository.get_all()
+    
+
+    async def edit_user(self, user_id: UUID, username: str, email: str, password: str) -> User:
+        hashed_password = generate_password_hash(password)
+
+        edited_user = User(
+            username=username,
+            email=email,
+            password=hashed_password,
+        )
+
+        updated_user = await self._user_repository.update(user_id, edited_user)
+
+        if not updated_user:
+            raise UserNotFoundException()
+
+        return updated_user
 

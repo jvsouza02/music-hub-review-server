@@ -62,3 +62,32 @@ class UserResponseSchema(BaseModel):
     ]
 
     model_config = ConfigDict(from_attributes=True)
+
+class UserUpdateSchema(BaseModel):
+    username: Annotated[
+        str | None,
+        Field(
+            min_length=2,
+            max_length=50,
+            title="Username",
+            description="Username to be displayed in the application.",
+            examples=["João Victor", "John Valverde Brix"]
+        )
+    ] = None
+    email: Annotated[
+        EmailStr | None,
+        Field(
+            title="User Email",
+            description="Email used to register and log in the application.",
+            examples=["joao.victor@email.com", "noah.gravens123@email.com"]
+        )
+    ] = None
+    password: Annotated[
+        str | None,
+        Field(
+            min_length=8,
+            title="User Password",
+            description="Password to register and log in the application. It must have at least 8 caracters.",
+            examples=["mypassword123", "@passeye"]
+        )
+    ] = None

@@ -1,9 +1,10 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Body, Path
 from typing import Annotated
+from uuid import UUID
 from src.application.user.services import UserService
 from src.domain.user.entity import User
 from src.presentation.api.v1.auth.deps import get_current_user
-from .schema import UserCreateSchema, UserResponseSchema
+from .schema import UserCreateSchema, UserResponseSchema, UserUpdateSchema
 from .deps import get_user_service
 
 
@@ -33,19 +34,22 @@ async def get_user():
      status_code=status.HTTP_201_CREATED  
 )
 async def create_user(
-     data: UserCreateSchema,
+     data: Annotated[UserCreateSchema, Body()],
      user_service: Annotated[
           UserService,
           Depends(get_user_service)
      ]
 ) -> UserResponseSchema:
-     created_user = await user_service.create_user(**data.model_dump())
-     return created_user
+     return await user_service.create_user(**data.model_dump())
 
 
-@user_router.put("/{user_id}")
-async def update_user():
-     pass
+@user_router.put("/{user_id}", response_model=UserResponseSchema)
+async def update_user(
+     user_id: Annotated[UUID, Path()],
+     data: Annotated[UserUpdateSchema, Body()],
+     user_service: Annotated[UserService, Depends(get_user_service)]
+):
+     return await user_service.edit_user(user_id, **data.model_dump())
 
 
 @user_router.patch("/{user_id}")
