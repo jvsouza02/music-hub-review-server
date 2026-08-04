@@ -1,5 +1,11 @@
 from pydantic import BaseModel, ConfigDict, Field, EmailStr, StrictBool
 from uuid import UUID, uuid4
+from enum import Enum
+
+class UserRole(Enum):
+    USER = "user"
+    MODERATOR = "moderator"
+    ADMIN = "admin"
 
 class User(BaseModel):
     model_config = ConfigDict(
@@ -12,4 +18,5 @@ class User(BaseModel):
     username: str = Field(min_length=3, max_length=100)
     email: EmailStr
     password: str
+    role: UserRole = UserRole.USER
     is_active: StrictBool = True

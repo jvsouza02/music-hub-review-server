@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Annotated
 from uuid import UUID
+from src.domain.user.entity import UserRole
 
 class UserCreateSchema(BaseModel):
     username: Annotated[
@@ -51,6 +52,13 @@ class UserResponseSchema(BaseModel):
         Field(
             title="User Email",
             description="Email used to register and log in the application.",
+        )
+    ]
+    role: Annotated[
+        UserRole,
+        Field(
+            title="User role",
+            description="This shows the user role in the application",
         )
     ]
     is_active: Annotated[

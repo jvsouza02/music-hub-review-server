@@ -3,7 +3,8 @@ from typing import Annotated
 from uuid import UUID
 from src.application.user.services import UserService
 from src.domain.user.entity import User
-from src.presentation.api.v1.auth.deps import get_current_user
+from src.presentation.api.v1.auth.deps import (get_current_user,
+get_moderator_admin_user, get_authorized_user)
 from .schema import UserCreateSchema, UserResponseSchema, UserUpdateSchema
 from .deps import get_user_service
 
@@ -13,7 +14,8 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 @user_router.get(
           "/",
           response_model=list[UserResponseSchema],
-          status_code=status.HTTP_200_OK
+          status_code=status.HTTP_200_OK,
+          dependencies=[Depends(get_moderator_admin_user)]
 )
 async def get_users(
      user_service: Annotated[UserService, Depends(get_user_service)]
@@ -32,21 +34,22 @@ async def get_me(
 
 
 @user_router.get(
-     "/{user_id}",
-     response_model=UserResponseSchema,
-     status_code=status.HTTP_200_OK
+          "/{user_id}",
+          response_model=UserResponseSchema,
+          status_code=status.HTTP_200_OK,
 )
 async def get_user(
      user_id: Annotated[UUID, Path()],
-     user_service: Annotated[UserService, Depends(get_user_service)]
+     user_service: Annotated[UserService, Depends(get_user_service)],
+     _=Depends(get_authorized_user)
 ):
      return await user_service.get_user(user_id)
 
 
 @user_router.post(
-     "/",
-     response_model=UserResponseSchema,
-     status_code=status.HTTP_201_CREATED  
+          "/",
+          response_model=UserResponseSchema,
+          status_code=status.HTTP_201_CREATED  
 )
 async def create_user(
      data: Annotated[UserCreateSchema, Body()],
@@ -58,7 +61,8 @@ async def create_user(
 @user_router.patch(
           "/{user_id}",
           response_model=UserResponseSchema,
-          status_code=status.HTTP_200_OK
+          status_code=status.HTTP_200_OK,
+          dependencies=[Depends(get_authorized_user)]
 )
 async def update_user(
      user_id: Annotated[UUID, Path()],
@@ -73,7 +77,8 @@ async def update_user(
 
 @user_router.delete(
           "/{user_id}",
-          status_code=status.HTTP_204_NO_CONTENT
+          status_code=status.HTTP_204_NO_CONTENT,
+          dependencies=[Depends(get_authorized_user)]
 )
 async def delete_user(
      user_id: Annotated[UUID, Path()],
