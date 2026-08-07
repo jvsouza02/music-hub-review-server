@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 class IArtistRepository(ABC):
     @abstractmethod
-    async def save(self, user: Artist) -> Artist:
+    async def save(self, artist: Artist) -> Artist:
         ...
 
     @abstractmethod

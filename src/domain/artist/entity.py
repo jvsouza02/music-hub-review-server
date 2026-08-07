@@ -4,9 +4,10 @@ from uuid import UUID, uuid4
 
 class Artist(BaseModel):
     id: UUID = Field(default_factory=uuid4)
-    name: str
-    disambiguation: str | None = None
-    country: str | None = None
+    mbid: str = Field(min_length=36, max_length=36)
+    name: str = Field(min_length=1, max_length=255)
+    disambiguation: str | None = Field(default=None, max_length=500)
+    country: str | None = Field(default=None, max_length=10)
     metadata_updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
@@ -20,6 +21,6 @@ class Artist(BaseModel):
             self, name: str, disambiguation: str | None, country: str | None,  
     ) -> None:
         self.name = name
-        self.disambiguation= disambiguation,
+        self.disambiguation = disambiguation
         self.country = country
         self.metadata_updated_at =  datetime.now(timezone.utc)

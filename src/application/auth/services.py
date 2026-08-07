@@ -17,13 +17,3 @@ class AuthService:
             raise InvalidCredentialsException()
 
         return create_access_token({"sub": str(saved_user.id)})
-
-        
-
-        
-
-        
-
-        
-
-        

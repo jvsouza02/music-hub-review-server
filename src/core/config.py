@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     DATABASE_URL: str = "postgres+asyncpg://postgres:7962@localhost:5432/musichubreview"
+    REDIS_URL: str = "redis://localhost:6379/0"
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"

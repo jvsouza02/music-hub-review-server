@@ -3,11 +3,9 @@ import logging
 
 from src.application.interfaces.musicbrainz_client import IMusicBrainzClient
 
-from .constants import SEARCH_RESULT_KEYS
-from .token_bucket import TokenBucket
 from .circuit_breaker import CircuitBreaker, CircuitOpenError
-from .cache import SimpleTTLCache
 from .http_fetcher import MusicBrainzFetcher
+from .token_bucket import TokenBucket
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +27,6 @@ class MusicBrainzClient(IMusicBrainzClient):
 
         self._bucket = TokenBucket(capacity=50.0, refill_rate=1.0)
         self._breaker = CircuitBreaker(failure_threshold=5, recovery_timeout=60.0)
-        self._cache = SimpleTTLCache(max_size=10_000)
         self._fetcher = MusicBrainzFetcher(
             base_url=base_url,
             headers=self.headers,
@@ -39,10 +36,6 @@ class MusicBrainzClient(IMusicBrainzClient):
 
         self._inflight: dict[str, asyncio.Future] = {}
         self._inflight_lock = asyncio.Lock()
-
-        self._TTL_LOOKUP = 7 * 24 * 3600 
-        self._TTL_SEARCH = 3600         
-        self._TTL_BROWSE = 3600            
 
     async def aclose(self) -> None:
         await self._fetcher.aclose()
@@ -57,11 +50,8 @@ class MusicBrainzClient(IMusicBrainzClient):
         params_str = str(sorted(params.items())) if params else ""
         return f"{endpoint}:{params_str}"
 
-    async def _get(self, endpoint: str, params: dict | None, ttl: int):
+    async def _get(self, endpoint: str, params: dict | None):
         cache_key = self._cache_key(endpoint, params)
-        cached = self._cache.get(cache_key, ttl)
-        if cached is not ...:
-            return cached
 
         async with self._inflight_lock:
             if cache_key in self._inflight:
@@ -73,7 +63,6 @@ class MusicBrainzClient(IMusicBrainzClient):
 
         try:
             data = await self._breaker.call(self._fetcher.fetch, endpoint, params)
-            self._cache.set(cache_key, data, ttl)
             future.set_result(data)
             return data
 
@@ -84,29 +73,29 @@ class MusicBrainzClient(IMusicBrainzClient):
             async with self._inflight_lock:
                 self._inflight.pop(cache_key, None)
 
-
     async def search(self, query: str, entity_type: str, limit: int = 25, offset: int = 0) -> list[dict]:
+        from .constants import SEARCH_RESULT_KEYS
         key = SEARCH_RESULT_KEYS.get(entity_type)
         if not key:
             raise ValueError(f"Tipo não suportado: {entity_type}")
-        data = await self._get(entity_type, {"query": query, "limit": limit, "offset": offset}, self._TTL_SEARCH)
+        data = await self._get(entity_type, {"query": query, "limit": limit, "offset": offset})
         return data.get(key, []) if data else []
 
     async def get_artist(self, mbid: str, inc: str | None = None) -> dict | None:
-        return await self._get(f"artist/{mbid}", {"inc": inc} if inc else None, self._TTL_LOOKUP)
+        return await self._get(f"artist/{mbid}", {"inc": inc} if inc else None)
 
     async def get_release_group(self, mbid: str, inc: str | None = None) -> dict | None:
-        return await self._get(f"release-group/{mbid}", {"inc": inc} if inc else None, self._TTL_LOOKUP)
+        return await self._get(f"release-group/{mbid}", {"inc": inc} if inc else None)
 
     async def get_album(self, mbid: str, inc: str | None = None) -> dict | None:
         return await self.get_release_group(mbid, inc)
 
     async def get_release(self, mbid: str, inc: str | None = None) -> dict | None:
-        return await self._get(f"release/{mbid}", {"inc": inc} if inc else None, self._TTL_LOOKUP)
+        return await self._get(f"release/{mbid}", {"inc": inc} if inc else None)
 
     async def get_recording(self, mbid: str, inc: str | None = None) -> dict | None:
-        return await self._get(f"recording/{mbid}", {"inc": inc} if inc else None, self._TTL_LOOKUP)
+        return await self._get(f"recording/{mbid}", {"inc": inc} if inc else None)
 
     async def browse_recordings_by_artist(self, artist_mbid: str, limit: int = 25, offset: int = 0) -> list[dict]:
-        data = await self._get("recording", {"artist": artist_mbid, "limit": limit, "offset": offset}, self._TTL_BROWSE)
+        data = await self._get("recording", {"artist": artist_mbid, "limit": limit, "offset": offset})
         return data.get("recordings", []) if data else []
