@@ -1,7 +1,5 @@
 from fastapi import Response
-
-ACCESS_TOKEN_KEY = "access_token"
-REFRESH_TOKEN_KEY = "refresh_token"
+from .constants import ACCESS_TOKEN_KEY, REFRESH_TOKEN_KEY
 
 def _set_cookies(
         response: Response,
@@ -14,7 +12,7 @@ def _set_cookies(
         value=value,
         httponly=True,
         secure=True,
-        samesite=True,
+        samesite="lax",
         max_age=max_age,
     )
 

@@ -1,19 +1,37 @@
-from fastapi import Depends, HTTPException, status, Path
+from fastapi import Depends, HTTPException, status, Path, Request
 from fastapi.security import OAuth2PasswordBearer
 from src.application.auth.services import AuthService
+from src.application.auth.refresh_token_store import RefreshTokenStore
+from src.infrastructure.cache.redis_client import RedisClient
 from src.presentation.api.v1.user.deps import get_user_repository
 from src.domain.user.entity import User, UserRole
+from src.domain.user.exceptions import InvalidCredentialsException
 from src.domain.user.repository import IUserRepository
-from src.core.config import settings
+from src.core.security import decode_token
+from .constants import ACCESS_TOKEN_KEY
 from typing import Annotated
 import jwt
 from uuid import UUID
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
+def _extract_token(
+        request: Request,
+        token_header: str | None
+) -> str | None:
+    if token_header:
+        return token_header
+
+    cookie_token = request.cookies.get(ACCESS_TOKEN_KEY)
+    if cookie_token:
+        return cookie_token.replace("Bearer ", "")
+
+    return None
+
 async def get_current_user(
-        token: Annotated[
-            str, 
+        request: Request,
+        token_header: Annotated[
+            str | None, 
             Depends(oauth2_scheme)
         ],
         user_repository: Annotated[
@@ -27,21 +45,22 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM]
-        )
-
-        user_id = payload.get("sub")
-        if not user_id:
-            raise credentials_exception
-    
-    except jwt.PyJWTError:
+    token = _extract_token(request, token_header)
+    if not token:
         raise credentials_exception
 
-    saved_user = await user_repository.get_by_id(UUID(user_id))
+    try:
+        payload = decode_token(token)
+        if payload.get("type") != "access":
+            raise InvalidCredentialsException()
+
+        user_id = UUID(payload.get("sub"))
+        if not user_id:
+            raise credentials_exception
+    except (jwt.PyJWTError, InvalidCredentialsException, ValueError) as e:
+        raise credentials_exception
+
+    saved_user = await user_repository.get_by_id(user_id)
     if not saved_user:
         raise credentials_exception
 
@@ -81,10 +100,18 @@ async def get_authorized_user(
     return current_user
 
 
+def get_refresh_token_store() -> RefreshTokenStore:
+    redis = RedisClient()
+    return RefreshTokenStore(redis)
+
 def get_auth_service(
         repository: Annotated[
             IUserRepository,
             Depends(get_user_repository)
+        ],
+        refresh_store: Annotated[
+            RefreshTokenStore,
+            Depends(get_refresh_token_store)
         ]
-) -> AuthService:
-    return AuthService(repository)
+) -> "AuthService":
+    return AuthService(repository, refresh_store)

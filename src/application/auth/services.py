@@ -29,7 +29,7 @@ class AuthService:
         access = create_access_token({"sub": user_id})
 
         jti, family_id = await self._refresh_store.create(user_id)
-        refresh = create_access_token({
+        refresh = refresh_access_token({
             "sub": user_id,
             "jti": jti,
             "family": family_id
