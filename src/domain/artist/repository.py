@@ -8,7 +8,7 @@ class IArtistRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> Artist | None:
+    async def get_by_id(self, artist_id: UUID) -> Artist | None:
         ...
 
     @abstractmethod

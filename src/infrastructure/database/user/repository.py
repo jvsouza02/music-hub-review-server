@@ -27,8 +27,8 @@ class UserRepository(IUserRepository):
         return UserMapper.to_entity(user_model)
 
 
-    async def get_by_id(self, id: UUID) -> User | None:
-        statement = select(UserModel).where(UserModel.id == id)
+    async def get_by_id(self, user_id: UUID) -> User | None:
+        statement = select(UserModel).where(UserModel.id == user_id)
 
         result = await self._session.execute(statement)
         user_model = result.scalar_one_or_none()

@@ -8,7 +8,7 @@ class IUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_by_id(self, id: UUID) -> User | None:
+    async def get_by_id(self, user_id: UUID) -> User | None:
         ...
 
     @abstractmethod
