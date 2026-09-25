@@ -8,7 +8,11 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 from src.infrastructure.database.base import Base
-import src.infrastructure.database.user.model
+from src.infrastructure.database.user.model import UserModel
+from src.infrastructure.database.artist.model import ArtistModel
+from src.infrastructure.database.album.model import AlbumModel
+from src.infrastructure.database.track.model import TrackModel
+from src.infrastructure.database.review.model import ReviewModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -56,7 +60,7 @@ def run_migrations_offline() -> None:
 
 
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
+    context.configure(connection=connection, target_metadata=target_metadata, render_as_batch=True,)
 
     with context.begin_transaction():
         context.run_migrations()

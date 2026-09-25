@@ -9,13 +9,11 @@ class ArtistModel(Base):
 
     id: Mapped[UUID] = mapped_column(
         primary_key=True,
-        index=True
     )
 
     mbid: Mapped[str] = mapped_column(
         String(36),
         unique=True,
-        index=True,
         nullable=False
     )
 
