@@ -18,6 +18,7 @@ class ReviewModel(Base):
     track_id: Mapped[UUID] = mapped_column(ForeignKey("tracks.id"), index=True, nullable=False)
     score: Mapped[Decimal] = mapped_column(Numeric(2, 1), nullable=False)
     body: Mapped[str] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
     is_edited: Mapped[bool] = mapped_column(default=False, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

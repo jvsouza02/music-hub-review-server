@@ -14,5 +14,6 @@ class Review(BaseModel):
     track_id: UUID
     score: Score
     body: str | None = Field(default=None, max_length=5000)
+    is_active: bool = True
     is_edited: bool = False
 
