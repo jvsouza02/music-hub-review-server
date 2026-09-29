@@ -3,7 +3,7 @@ import logging
 
 from src.application.interfaces.musicbrainz_client import IMusicBrainzClient
 
-from .circuit_breaker import CircuitBreaker, CircuitOpenError
+from .circuit_breaker import CircuitBreaker
 from .http_fetcher import MusicBrainzFetcher
 from .token_bucket import TokenBucket
 
