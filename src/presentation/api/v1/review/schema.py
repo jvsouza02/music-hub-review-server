@@ -9,7 +9,7 @@ class ReviewCreateRequest(BaseModel):
     body: str | None = None
 
 class ReviewResponse(BaseModel):
-    review_id: UUID
+    id: UUID
     user_id: UUID
     track_id: UUID
     score: float
@@ -19,7 +19,7 @@ class ReviewResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-    @field_validator
+    @field_validator("score", mode="before")
     @classmethod
     def extract_score_value(cls, v: Any) -> float:
         if hasattr(v, "value"):

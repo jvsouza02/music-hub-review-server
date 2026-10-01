@@ -9,7 +9,7 @@ from .schema import UserCreateSchema, UserResponseSchema, UserUpdateSchema
 from .deps import get_user_service
 
 
-user_router = APIRouter(prefix="/users", tags=["Users"])
+user_router = APIRouter(prefix="/user", tags=["User"])
 
 @user_router.get(
           "/",

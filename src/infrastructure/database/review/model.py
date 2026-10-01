@@ -13,7 +13,7 @@ class ReviewModel(Base):
         UniqueConstraint("user_id", "track_id", name="uq_review_user_track"),
     )
 
-    review_id: Mapped[UUID] = mapped_column(primary_key=True)
+    id: Mapped[UUID] = mapped_column(primary_key=True)
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"), index=True, nullable=False)
     track_id: Mapped[UUID] = mapped_column(ForeignKey("tracks.id"), index=True, nullable=False)
     score: Mapped[Decimal] = mapped_column(Numeric(2, 1), nullable=False)

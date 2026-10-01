@@ -68,7 +68,7 @@ class ReviewService:
                     artist_id=artist.id,
                     title=release_data["title"],
                     release_date=release_data.get("date"),
-                    total_tracks=release_data.get("track-count")
+                    total_tracks=release_data.get("track-count") or 0
                 )
 
                 album = await self._album_repository.save(album)

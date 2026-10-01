@@ -17,6 +17,6 @@ class Review(BaseModel):
     body: str | None = Field(default=None, max_length=5000)
     is_active: bool = True
     is_edited: bool = False
-    created_at: datetime | None
-    updated_at: datetime | None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 

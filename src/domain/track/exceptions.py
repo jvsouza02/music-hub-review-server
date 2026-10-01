@@ -6,7 +6,7 @@ class TrackNotFoundException(GlobalException):
         self,
         message = "Track not Found"
     ):
-        super.__init__(
+        super().__init__(
             message=message,
             status_code=HTTPStatus.NOT_FOUND
         )

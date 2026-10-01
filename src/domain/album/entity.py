@@ -21,8 +21,8 @@ class Album(BaseModel):
         default=None,
         description="Formato ISO YYYY-MM-DD ou YYYY"
     )
-    total_tracks: int = Field(ge=1)
-    metadata_updated_at = datetime = Field(
+    total_tracks: int = Field(ge=0)
+    metadata_updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
     
