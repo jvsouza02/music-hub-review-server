@@ -1,6 +1,7 @@
 from src.domain.track.entity import Track
 from abc import abstractmethod, ABC
 from uuid import UUID
+from typing import Any
 
 class ITrackRepository(ABC):
     @abstractmethod
@@ -17,4 +18,8 @@ class ITrackRepository(ABC):
 
     @abstractmethod
     async def get_by_album(self, album_id: UUID) -> list[Track]:
+        ...
+
+    @abstractmethod
+    async def update(self, track_id: UUID, data: dict[str, Any]) -> Track | None:
         ...

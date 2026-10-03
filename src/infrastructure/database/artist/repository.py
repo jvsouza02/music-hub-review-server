@@ -1,11 +1,12 @@
 from src.domain.artist.repository import IArtistRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update
 from src.infrastructure.database.artist.mapper import ArtistMapper
 from src.infrastructure.database.artist.model import ArtistModel
 from src.domain.artist.entity import Artist
 from sqlalchemy.exc import DBAPIError
 from uuid import UUID
+from typing import Any
 
 
 class ArtistRepository(IArtistRepository):
@@ -46,4 +47,28 @@ class ArtistRepository(IArtistRepository):
         if artist_model is None:
             return None
 
-        return ArtistMapper.to_entity(artist_model)    
+        return ArtistMapper.to_entity(artist_model)
+
+    async def update(self, artist_id: UUID, data: list[str, Any]) -> Artist | None:
+            if data is None:
+                return None
+    
+            statement = (
+                update(ArtistModel)
+                .where(ArtistModel.id == artist_id)
+                .values(
+                    average_score=data.get("average_score"),
+                    review_count=data.get("review_count")
+                )
+                .returning(ArtistModel)
+            )
+    
+            result = await self._session.execute(statement)
+            await self._session.commit()
+    
+            updated_data = result.scalar_one_or_none()
+    
+            if updated_data is None:
+                return None
+    
+            return ArtistMapper.to_entity(updated_data)

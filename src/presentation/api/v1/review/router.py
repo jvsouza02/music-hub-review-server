@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, BackgroundTasks, status
 from typing import Annotated
 from src.application.review.services import ReviewService
+from src.application.aggregation.orchestrator import AggregationOrchestrator
 from src.domain.user.entity import User
 from src.domain.review.entity import Review
 from .deps import get_review_service
@@ -31,6 +32,10 @@ async def create_review(
         body=data.body
     )
 
-    background_task.add_task(mock_recalculate_score, review.track_id)
+    background_task.add_task(
+        AggregationOrchestrator.run_aggregation_for_new_review,
+        review.track_id,
+        data.score 
+    )
 
     return review

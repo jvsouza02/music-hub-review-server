@@ -1,6 +1,7 @@
 from abc import abstractmethod, ABC
 from src.domain.album.entity import Album
 from uuid import UUID
+from typing import Any
 
 class IAlbumRepository(ABC):
     @abstractmethod
@@ -13,4 +14,8 @@ class IAlbumRepository(ABC):
 
     @abstractmethod
     async def get_by_mbid(self, mbid: str) -> Album | None:
+        ...
+
+    @abstractmethod
+    async def update(self, album_id: UUID, data: dict[str, Any]) -> Album | None:
         ...

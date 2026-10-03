@@ -4,8 +4,9 @@ from src.domain.track.entity import Track
 from src.infrastructure.database.track.mapper import TrackMapper
 from src.infrastructure.database.track.model import TrackModel
 from sqlalchemy.exc import DBAPIError
+from typing import Any
 from uuid import UUID
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 class TrackRepository(ITrackRepository):
     def __init__(self, session: AsyncSession):
@@ -55,4 +56,29 @@ class TrackRepository(ITrackRepository):
         result = await self._session.execute(statement)
         
         return [TrackMapper.to_entity(track) for track in result.scalars().all()]
+
+
+    async def update(self, track_id: UUID, data: list[str, Any]) -> Track | None:
+        if data is None:
+            return None
+
+        statement = (
+            update(TrackModel)
+            .where(TrackModel.id == track_id)
+            .values(
+                average_score=data.get("average_score"),
+                review_count=data.get("review_count")
+            )
+            .returning(TrackModel)
+        )
+
+        result = await self._session.execute(statement)
+        await self._session.commit()
+
+        updated_data = result.scalar_one_or_none()
+
+        if updated_data is None:
+            return None
+
+        return TrackMapper.to_entity(updated_data)
         

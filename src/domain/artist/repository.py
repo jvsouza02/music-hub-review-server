@@ -1,6 +1,7 @@
 from uuid import UUID
 from .entity import Artist
 from abc import ABC, abstractmethod
+from typing import Any
 
 class IArtistRepository(ABC):
     @abstractmethod
@@ -19,9 +20,9 @@ class IArtistRepository(ABC):
     # async def get_all(self) -> list[Artist] | None:
     #     ...
 
-    # @abstractmethod
-    # async def update(self, artist_id: UUID, artist: Artist) -> Artist | None:
-    #     ...
+    @abstractmethod
+    async def update(self, artist_id: UUID, data: dict[str, Any]) -> Artist | None:
+        ...
 
     # @abstractmethod
     # async def delete(self, artist_id: UUID) -> bool:
