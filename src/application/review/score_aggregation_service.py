@@ -27,8 +27,12 @@ class ScoreAggregationService:
         min_abs_tracks: int = 3,
     ) -> AggregationResult:
         reviewed_count = len(tracks)
+        
+        if total_tracks <= 0:
+            return AggregationResult(None, reviewed_count, total_tracks, Decimal("0"), False)
+
         coverage = Decimal(reviewed_count) / Decimal(total_tracks)
-        is_visible = coverage>=min_coverage or reviewed_count>=min_abs_tracks
+        is_visible = coverage >= min_coverage or reviewed_count >= min_abs_tracks
 
         average = None
         if is_visible and tracks:
@@ -39,9 +43,10 @@ class ScoreAggregationService:
             
             total_reviews = sum(track.review_count for track in tracks)
             
-            average = (weighted_sum / total_reviews).quantize(
-                Decimal("0.1"), rounding=ROUND_HALF_UP
-            )
+            if total_reviews > 0:
+                average = (weighted_sum / total_reviews).quantize(
+                    Decimal("0.1"), rounding=ROUND_HALF_UP
+                )
 
         return AggregationResult(
             average=average,
@@ -59,21 +64,26 @@ class ScoreAggregationService:
         min_abs_albums: int = 2,
     ) -> AggregationResult:
         reviewed_count = len(albums)
+        
+        if total_albums <= 0:
+            return AggregationResult(None, reviewed_count, total_albums, Decimal("0"), False)
+
         coverage = Decimal(reviewed_count) / Decimal(total_albums)
-        is_visible = coverage>=min_coverage or reviewed_count>=min_abs_albums
+        is_visible = coverage >= min_coverage or reviewed_count >= min_abs_albums
 
         average = None
         if is_visible and albums:
             weighted_sum = sum(
-                album.average * album.review_count
+                album.average * album.reviewed_tracks
                 for album in albums
             )
             
-            total_reviews = sum(album.review_count for album in albums)
+            total_reviews = sum(album.reviewed_tracks for album in albums)
             
-            average = (weighted_sum / total_reviews).quantize(
-                Decimal("0.1"), rounding=ROUND_HALF_UP
-            )
+            if total_reviews > 0:
+                average = (weighted_sum / total_reviews).quantize(
+                    Decimal("0.1"), rounding=ROUND_HALF_UP
+                )
 
         return AggregationResult(
             average=average,

@@ -1,6 +1,7 @@
 from datetime import timezone, timedelta, datetime
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID, uuid4
+from decimal import Decimal
 
 class Artist(BaseModel):
     model_config = ConfigDict(
@@ -14,6 +15,8 @@ class Artist(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     disambiguation: str | None = Field(default=None, max_length=500)
     country: str | None = Field(default=None, max_length=10)
+    avegare_score: Decimal | None = Field(default=None, ge=0.0, le=5.0)
+    review_count: int = Field(default=0, ge=0)
     metadata_updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )

@@ -1,5 +1,6 @@
 from uuid import UUID
-from sqlalchemy import String, DateTime, func
+from sqlalchemy import String, DateTime, func, Numeric
+from decimal import Decimal
 from sqlalchemy.orm import Mapped, mapped_column
 from src.infrastructure.database.base import Base
 from datetime import datetime
@@ -30,6 +31,15 @@ class ArtistModel(Base):
     country: Mapped[str | None] = mapped_column(
         String(10),
         nullable=True
+    )
+
+    average_score: Mapped[Decimal | None] = mapped_column(
+        Numeric(2, 1), nullable=True
+    )
+
+    review_count: Mapped[int] = mapped_column(
+        server_default="0",
+        nullable=False
     )
     
     metadata_updated_at:  Mapped[datetime] = mapped_column(

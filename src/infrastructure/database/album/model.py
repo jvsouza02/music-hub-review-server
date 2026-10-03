@@ -2,7 +2,8 @@ from src.infrastructure.database.base import Base
 from src.infrastructure.database.artist.model import ArtistModel
 from datetime import datetime
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import String, ForeignKey, DateTime, func
+from sqlalchemy import String, ForeignKey, DateTime, func, Numeric
+from decimal import Decimal
 from uuid import UUID
 
 class AlbumModel(Base):
@@ -13,6 +14,8 @@ class AlbumModel(Base):
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     release_date: Mapped[str] = mapped_column(String(10), nullable=True)
     total_tracks: Mapped[int] = mapped_column(nullable=False)
+    average_score: Mapped[Decimal | None] = mapped_column(Numeric(2, 1), nullable=True)
+    review_count: Mapped[int] = mapped_column(server_default="0", nullable=False)
     artist_id: Mapped[UUID] = mapped_column(ForeignKey("artists.id"), index=True, nullable=False)
     metadata_updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     created_at: Mapped[datetime] = mapped_column(

@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID, uuid4
 from datetime import timezone, timedelta, datetime
+from decimal import Decimal
 
 class Track(BaseModel):
     model_config = ConfigDict(
@@ -26,6 +27,8 @@ class Track(BaseModel):
         ge=0,
         description="Track duration (milliseconds)"
     )
+    avegare_score: Decimal | None = Field(default=None, ge=0.0, le=5.0)
+    review_count: int = Field(default=0, ge=0)
     metadata_updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
