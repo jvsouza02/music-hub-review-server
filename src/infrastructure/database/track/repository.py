@@ -6,8 +6,7 @@ from src.infrastructure.database.track.model import TrackModel
 from sqlalchemy.exc import DBAPIError
 from typing import Any
 from uuid import UUID
-from sqlalchemy import select, update
-
+from sqlalchemy import select, update, delete
 class TrackRepository(ITrackRepository):
     def __init__(self, session: AsyncSession):
         self._session = session
@@ -81,4 +80,16 @@ class TrackRepository(ITrackRepository):
             return None
 
         return TrackMapper.to_entity(updated_data)
-        
+
+
+    async def delete(self, track_id: UUID) -> bool:
+        statement = (
+            delete(TrackModel)
+            .where(TrackModel.id == track_id)
+            .returning(TrackModel)
+        )
+
+        result = await self._session.execute(statement)
+        await self._session.commit()
+
+        return result.rowcount > 0

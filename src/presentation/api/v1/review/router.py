@@ -7,12 +7,8 @@ from src.domain.review.entity import Review
 from .deps import get_review_service
 from .schema import ReviewCreateRequest, ReviewResponse
 from ..auth.deps import get_current_user
-from uuid import UUID
 
 review_router = APIRouter(prefix="/review", tags=["Review"])
-
-async def mock_recalculate_score(track_id: UUID):
-    print(f"Recalculanto notas para: {track_id}")
 
 @review_router.post(
     "/",
