@@ -24,6 +24,6 @@ class IArtistRepository(ABC):
     async def update(self, artist_id: UUID, data: dict[str, Any]) -> Artist | None:
         ...
 
-    # @abstractmethod
-    # async def delete(self, artist_id: UUID) -> bool:
-    #     ...
+    @abstractmethod
+    async def delete(self, artist_id: UUID) -> bool:
+        ...

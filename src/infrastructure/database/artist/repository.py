@@ -1,6 +1,6 @@
 from src.domain.artist.repository import IArtistRepository
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from src.infrastructure.database.artist.mapper import ArtistMapper
 from src.infrastructure.database.artist.model import ArtistModel
 from src.domain.artist.entity import Artist
@@ -72,3 +72,16 @@ class ArtistRepository(IArtistRepository):
                 return None
     
             return ArtistMapper.to_entity(updated_data)
+
+
+    async def delete(self, artist_id: UUID) -> bool:
+        statement = (
+            delete(ArtistModel)
+            .where(ArtistModel.id == artist_id)
+            .returning(ArtistModel)
+        )
+
+        result = await self._session.execute(statement)
+        await self._session.commit()
+
+        return result.rowcount > 0

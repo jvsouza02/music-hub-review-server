@@ -19,3 +19,7 @@ class IAlbumRepository(ABC):
     @abstractmethod
     async def update(self, album_id: UUID, data: dict[str, Any]) -> Album | None:
         ...
+
+    @abstractmethod
+    async def delete(self, album_id: UUID) -> bool:
+        ...

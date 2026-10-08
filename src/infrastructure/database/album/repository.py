@@ -4,7 +4,7 @@ from src.infrastructure.database.album.mapper import AlbumMapper
 from src.infrastructure.database.album.model import AlbumModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import DBAPIError
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 from uuid import UUID
 from typing import Any
 
@@ -73,4 +73,15 @@ class AlbumRepository(IAlbumRepository):
     
             return AlbumMapper.to_entity(updated_data)
     
-        
+
+    async def delete(self, album_id: UUID) -> bool:
+        statement = (
+            delete(AlbumModel)
+            .where(AlbumModel.id == album_id)
+            .returning(AlbumModel)
+        )
+
+        result = self._session.execute(statement)
+        await self._session.commit()
+
+        return result.rowcount > 0
