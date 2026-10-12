@@ -82,7 +82,7 @@ class ReviewRepository(IReviewRepository):
 
         statement = (
             update(ReviewModel)
-            .where(ReviewModel.review_id == review_id)
+            .where(ReviewModel.id == review_id)
             .values(**update_data)
             .returning(ReviewModel)
         )

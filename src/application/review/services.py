@@ -1,7 +1,7 @@
 from uuid import UUID
 from src.domain.review.entity import Review
 from src.domain.review.repository import IReviewRepository
-from src.domain.review.exceptions import ReviewAlreadyExistsException
+from src.domain.review.exceptions import ReviewAlreadyExistsException, ReviewNotFoundException
 from src.domain.artist.entity import Artist
 from src.domain.artist.repository import IArtistRepository
 from src.domain.album.entity import Album
@@ -10,6 +10,7 @@ from src.domain.track.entity import Track
 from src.domain.track.repository import ITrackRepository
 from src.domain.track.exceptions import TrackNotFoundException
 from src.domain.music.value_objects.score import Score
+from src.domain.user.exceptions import NotAuthorizedUser
 from src.application.interfaces.musicbrainz_client import IMusicBrainzClient
 
 class ReviewService:
@@ -102,3 +103,70 @@ class ReviewService:
         )
 
         return await self._review_repository.save(review)
+
+
+    async def get_review_by_id(self, review_id: UUID) -> Review:
+        review = await self._review_repository.get_by_id(review_id)
+
+        if review is None:
+            raise ReviewNotFoundException()
+
+        return review
+
+
+    async def get_review_by_user(self, user_id: UUID) -> list[Review]:
+        return await self._review_repository.get_by_user(user_id)
+
+
+    async def get_review_by_track(self, track_id: UUID) -> list[Review]:
+        return await self._review_repository.get_by_track(track_id)
+
+
+    async def get_review_by_user_and_track(self, user_id: UUID, track_id: UUID) -> Review:
+        review = await self._review_repository.get_by_user_and_track(user_id, track_id)
+
+        if review is None:
+            raise ReviewNotFoundException()
+
+        return review
+
+
+    async def update_review(
+            self,
+            review_id: UUID,
+            current_user_id: UUID,
+            new_score_value: float | None = None,
+            new_body: str | None = None
+    ) -> tuple[Review, float]:
+        review = await self._review_repository.get_by_id(review_id)
+
+        if review is None:
+            raise ReviewNotFoundException()
+
+        if review.user_id != current_user_id:
+            raise NotAuthorizedUser()
+
+        old_score_float = float(review.score.value)
+
+        update_data = {"is_edited": True}
+        if new_score_value is not None:
+            update_data["score"] = new_score_value
+        if new_body is not None:
+            update_data["body"] = new_body
+
+        updated_review = await self._review_repository.update(review_id, update_data)
+
+        return updated_review
+
+    async def delete_review(self, review_id: UUID, current_user_id: UUID) -> Review:
+        review = await self._review_repository.get_by_id(review_id)
+
+        if review is None:
+            raise ReviewNotFoundException()
+
+        if review.user_id != current_user_id:
+            raise NotAuthorizedUser()
+
+        await self._review_repository.delete(review_id)
+
+        return review

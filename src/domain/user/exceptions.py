@@ -12,3 +12,8 @@ class UserNotFoundException(GlobalException):
 class InvalidCredentialsException(GlobalException):
     def __init__(self, message="Incorrect email or password."):
         super().__init__(message=message, status_code=HTTPStatus.UNAUTHORIZED)
+
+class NotAuthorizedUser(GlobalException):
+    def __init__(self, message="User not authorized."):
+        super().__init__(message=message,
+        status_code=HTTPStatus.UNAUTHORIZED)
