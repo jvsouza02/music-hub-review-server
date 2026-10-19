@@ -8,6 +8,10 @@ class ReviewCreateRequest(BaseModel):
     score: Annotated[float, Field(ge=0.5, le=5.0)]
     body: str | None = None
 
+class ReviewUpdateRequest(BaseModel):
+    new_score_value: Annotated[float | None , Field(ge=0.5, le=5.0)] = None
+    new_body: str | None = None
+
 class ReviewResponse(BaseModel):
     id: UUID
     user_id: UUID

@@ -156,7 +156,7 @@ class ReviewService:
 
         updated_review = await self._review_repository.update(review_id, update_data)
 
-        return updated_review
+        return updated_review, old_score_float
 
     async def delete_review(self, review_id: UUID, current_user_id: UUID) -> Review:
         review = await self._review_repository.get_by_id(review_id)

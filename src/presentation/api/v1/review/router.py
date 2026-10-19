@@ -5,8 +5,9 @@ from src.application.aggregation.orchestrator import AggregationOrchestrator
 from src.domain.user.entity import User
 from src.domain.review.entity import Review
 from .deps import get_review_service
-from .schema import ReviewCreateRequest, ReviewResponse
+from .schema import ReviewCreateRequest, ReviewResponse, ReviewUpdateRequest
 from ..auth.deps import get_current_user
+from uuid import UUID
 
 review_router = APIRouter(prefix="/review", tags=["Review"])
 
@@ -35,3 +36,33 @@ async def create_review(
     )
 
     return review
+
+
+@review_router.put(
+    "/{review_id}",
+    response_model=ReviewResponse,
+    status_code=status.HTTP_200_OK
+)
+async def update_review(
+    review_id: UUID, 
+    data: ReviewUpdateRequest,
+    background_task: BackgroundTasks,
+    current_user: Annotated[User, Depends(get_current_user)],
+    review_service: Annotated[ReviewService, Depends(get_review_service)]
+) -> Review:
+    updated_review, old_score_flat = await review_service.update_review(
+        review_id=review_id,
+        current_user_id=current_user.id,
+        new_score_value=data.new_score_value,
+        new_body=data.new_body
+    )
+
+    if data.new_score_value is not None and old_score_flat != data.new_score_value:
+        background_task.add_task(
+            AggregationOrchestrator.run_aggregation_for_updated_review,
+            updated_review.track_id,
+            old_score_flat,
+            data.new_score_value
+        )
+
+    return updated_review
