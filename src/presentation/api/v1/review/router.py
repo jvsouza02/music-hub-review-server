@@ -50,19 +50,43 @@ async def update_review(
     current_user: Annotated[User, Depends(get_current_user)],
     review_service: Annotated[ReviewService, Depends(get_review_service)]
 ) -> Review:
-    updated_review, old_score_flat = await review_service.update_review(
+    updated_review, old_score_float = await review_service.update_review(
         review_id=review_id,
         current_user_id=current_user.id,
         new_score_value=data.new_score_value,
         new_body=data.new_body
     )
 
-    if data.new_score_value is not None and old_score_flat != data.new_score_value:
+    if data.new_score_value is not None and old_score_float != data.new_score_value:
         background_task.add_task(
             AggregationOrchestrator.run_aggregation_for_updated_review,
             updated_review.track_id,
-            old_score_flat,
+            old_score_float,
             data.new_score_value
         )
 
     return updated_review
+
+
+@review_router.delete(
+    "/{review_id}",
+    status_code=status.HTTP_200_OK
+)
+async def delete_review(
+    review_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    background_task: BackgroundTasks,
+    review_service: Annotated[ReviewService, Depends(get_review_service)]
+) -> Review:
+    deleted_review, old_score_float = await review_service.delete_review(
+        review_id=review_id,
+        current_user_id=current_user.id
+    )
+
+    background_task.add_task(
+        AggregationOrchestrator.run_aggregation_for_deleted_review,
+        deleted_review.track_id,
+        old_score_float
+    )
+
+    return deleted_review

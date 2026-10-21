@@ -83,6 +83,47 @@ class AggregationOrchestrator:
                 await session.rollback()
                 logger.error(f"Erro ao agregar notas (ATUALIZAÇÃO) da track {track_id}: {str(e)}")
 
+
+    @staticmethod
+    async def run_aggregation_for_deleted_review(track_id: UUID, deleted_score_value: float) -> None:
+        async with AsyncSessionLocal() as session:
+            try:
+                track_repo = TrackRepository(session)
+                album_repo = AlbumRepository(session)
+                artist_repo = ArtistRepository(session)
+
+                track = await track_repo.get_by_id(track_id)
+                if not track:
+                    return
+
+                current_count = track.review_count or 0
+                current_avg = track.average_score or Decimal("0.0")
+                deleted_score = Decimal(str(deleted_score_value))
+
+                if current_count <= 1:
+                    new_count = 0
+                    track_average = None 
+                else:
+                    new_count = current_count - 1
+                    new_avg = ((current_avg * Decimal(current_count)) - deleted_score) / Decimal(new_count)
+                    track_average = new_avg.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+
+                # Atualiza a Faixa
+                await track_repo.update(track.id, {
+                    "average_score": track_average,
+                    "review_count": new_count
+                })
+
+                await AggregationOrchestrator._cascade_album_and_artist(track, track_repo, album_repo, artist_repo)
+
+                await session.commit()
+                logger.info(f"Notas agregadas (EXCLUSÃO) com sucesso para a track {track_id}")
+
+            except Exception as e:
+                await session.rollback()
+                logger.error(f"Erro ao agregar notas (EXCLUSÃO) da track {track_id}: {str(e)}")
+
+
     @staticmethod
     async def _cascade_album_and_artist(track, track_repo, album_repo, artist_repo) -> None:
         album = await album_repo.get_by_id(track.album_id)

@@ -158,7 +158,7 @@ class ReviewService:
 
         return updated_review, old_score_float
 
-    async def delete_review(self, review_id: UUID, current_user_id: UUID) -> Review:
+    async def delete_review(self, review_id: UUID, current_user_id: UUID) -> tuple[Review, float]:
         review = await self._review_repository.get_by_id(review_id)
 
         if review is None:
@@ -167,6 +167,8 @@ class ReviewService:
         if review.user_id != current_user_id:
             raise NotAuthorizedUser()
 
+        old_score_float = float(review.score.value)
+
         await self._review_repository.delete(review_id)
 
-        return review
+        return review, old_score_float
