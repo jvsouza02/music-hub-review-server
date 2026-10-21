@@ -13,11 +13,11 @@ class IReviewRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_by_user(self, user_id: UUID) -> list[Review]:
+    async def get_by_user(self, user_id: UUID, limit: int, offset: int) -> list[Review]:
         ...
 
     @abstractmethod
-    async def get_by_track(self, track_id: UUID) -> list[Review]:
+    async def get_by_track(self, track_id: UUID, limit: int, offset: int) -> list[Review]:
         ...
 
     @abstractmethod

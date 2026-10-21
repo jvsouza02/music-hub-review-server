@@ -40,21 +40,23 @@ class ReviewRepository(IReviewRepository):
         return ReviewMapper.to_entity(review_model)
 
 
-    async def get_by_user(self, user_id: UUID) -> list[Review]:
+    async def get_by_user(self, user_id: UUID, limit: int, offset: int) -> list[Review]:
         statement = select(ReviewModel).where(
             ReviewModel.user_id == user_id,
             Review.is_active == True
-        )
+        ).order_by(ReviewModel.created_at.desc()).limit(limit).offset(offset)
+        
         result = await self._session.execute(statement)
 
         return [ReviewMapper.to_entity(review) for review in result.scalars().all()]
 
 
-    async def get_by_track(self, track_id: UUID) -> list[Review]:
+    async def get_by_track(self, track_id: UUID, limit: int, offset: int) -> list[Review]:
         statement = select(ReviewModel).where(
             ReviewModel.track_id == track_id,
             Review.is_active == True
-        )
+        ).order_by(ReviewModel.created_at.desc()).limit(limit).offset(offset)
+
         result = await self._session.execute(statement)
 
         return [ReviewMapper.to_entity(review) for review in result.scalars().all()]

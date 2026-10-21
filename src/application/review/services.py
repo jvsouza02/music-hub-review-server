@@ -114,21 +114,12 @@ class ReviewService:
         return review
 
 
-    async def get_review_by_user(self, user_id: UUID) -> list[Review]:
-        return await self._review_repository.get_by_user(user_id)
+    async def get_review_by_user(self, user_id: UUID, limit: int, offset: int) -> list[Review]:
+        return await self._review_repository.get_by_user(user_id, limit, offset)
 
 
-    async def get_review_by_track(self, track_id: UUID) -> list[Review]:
-        return await self._review_repository.get_by_track(track_id)
-
-
-    async def get_review_by_user_and_track(self, user_id: UUID, track_id: UUID) -> Review:
-        review = await self._review_repository.get_by_user_and_track(user_id, track_id)
-
-        if review is None:
-            raise ReviewNotFoundException()
-
-        return review
+    async def get_review_by_track(self, track_id: UUID, limit: int, offset: int) -> list[Review]:
+        return await self._review_repository.get_by_track(track_id, limit, offset)
 
 
     async def update_review(
