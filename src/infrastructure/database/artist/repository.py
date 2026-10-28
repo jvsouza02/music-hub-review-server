@@ -48,6 +48,19 @@ class ArtistRepository(IArtistRepository):
             return None
 
         return ArtistMapper.to_entity(artist_model)
+    
+
+    async def get_all(self, limit: int = 20, offset: int = 0) -> list[Artist]:
+        statement = (
+            select(ArtistModel)
+            .order_by(ArtistModel.average_score.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+
+        result = await self._session.execute(statement)
+
+        return [ArtistMapper.to_entity(artist) for artist in result.scalars().all()]
 
     async def update(self, artist_id: UUID, data: list[str, Any]) -> Artist | None:
             if data is None:
