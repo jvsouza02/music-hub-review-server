@@ -49,6 +49,31 @@ class AlbumRepository(IAlbumRepository):
         return AlbumMapper.to_entity(album_model)
 
 
+    async def get_by_artist(self, artist_id: UUID) -> list[Album]:
+        statement = (
+            select(AlbumModel)
+            .where(AlbumModel.artist_id == artist_id)
+            .order_by(AlbumModel.release_date.desc())
+        )
+
+        result = await self._session.execute(statement)
+
+        return [AlbumMapper.to_entity(album) for album in result.scalars().all()]
+
+
+    async def get_all(self, limit: int = 20, offset: int = 0) -> list[Album]:
+        statement = (
+            select(AlbumModel)
+            .order_by(AlbumModel.average_score.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+
+        result = await self._session.execute(statement)
+
+        return [AlbumMapper.to_entity(album) for album in result.scalars().all()]
+
+
     async def update(self, album_id: UUID, data: list[str, Any]) -> Album | None:
             if data is None:
                 return None

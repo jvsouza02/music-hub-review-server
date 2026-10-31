@@ -17,6 +17,14 @@ class IAlbumRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_by_artist(self, artist_id: UUID) -> list[Album]:
+        ...
+
+    @abstractmethod
+    async def get_all(self, limit: int, offset: int) -> list[Album]:
+        ...
+
+    @abstractmethod
     async def update(self, album_id: UUID, data: dict[str, Any]) -> Album | None:
         ...
 
