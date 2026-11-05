@@ -30,4 +30,4 @@ class AlbumService:
 
 
     async def get_all_albums(self, limit: int, offset: int) -> list[Album]:
-        return await self._album_repository.get_all()
+        return await self._album_repository.get_all(limit, offset)

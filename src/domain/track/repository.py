@@ -21,5 +21,13 @@ class ITrackRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_all(self, limit: int, offset: int) -> list[Track]:
+        ...
+
+    @abstractmethod
     async def update(self, track_id: UUID, data: dict[str, Any]) -> Track | None:
+        ...
+
+    @abstractmethod
+    async def delete(self, track_id: UUID) -> bool:
         ...

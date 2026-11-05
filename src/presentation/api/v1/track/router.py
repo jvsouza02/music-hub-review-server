@@ -1,0 +1,57 @@
+from fastapi import APIRouter, Depends, status
+from .schema import TrackResponse, TrackFiltersParams
+from .deps import get_track_service
+from src.domain.track.entity import Track
+from src.application.track.services import TrackService
+from typing import Annotated
+from uuid import UUID
+
+track_router = APIRouter(prefix="/tracks", tags=["Track"])
+
+
+@track_router.get(
+    "/{track_id}",
+    response_model=TrackResponse,
+    status_code=status.HTTP_200_OK
+)
+async def get_track_by_id(
+    track_service: Annotated[TrackService, Depends(get_track_service)],
+    track_id: UUID
+) -> Track:
+    return await track_service.get_track_by_id(track_id)
+
+
+@track_router.get(
+    "/{track_mbid}",
+    response_model=TrackResponse,
+    status_code=status.HTTP_200_OK
+)
+async def get_track_by_mbid(
+    track_service: Annotated[TrackService, Depends(get_track_service)],
+    track_mbid: UUID
+) -> Track:
+    return await track_service.get_track_by_id(track_mbid)
+
+
+@track_router.get(
+    "/{album_id}",
+    response_model=list[TrackResponse],
+    status_code=status.HTTP_200_OK
+)
+async def get_tracks_by_album(
+    track_service: Annotated[TrackService, Depends(get_track_service)],
+    album_id: UUID
+) -> list[Track]:
+    return await track_service.get_track_by_album(album_id)
+
+
+@track_router.get(
+    "/",
+    response_model=list[Track],
+    status_code=status.HTTP_200_OK
+)
+async def get_all_tracks(
+    track_service: Annotated[TrackService, Depends(get_track_service)],
+    filters: Annotated[TrackFiltersParams, Depends()]
+) -> list[Track]:
+    return await track_service.get_all_tracks(filters.limit, filters.offset)

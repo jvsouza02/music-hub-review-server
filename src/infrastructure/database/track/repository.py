@@ -57,6 +57,19 @@ class TrackRepository(ITrackRepository):
         return [TrackMapper.to_entity(track) for track in result.scalars().all()]
 
 
+    async def get_all(self, limit: int, offset: int) -> list[Track]:
+        statement = (
+            select(TrackModel)
+            .order_by(TrackModel.average_score.desc())
+            .limit(limit)
+            .offset(offset)
+        )
+
+        result = await self._session.execute(statement)
+
+        return [TrackMapper.to_entity(track) for track in result.scalars().all()]
+
+
     async def update(self, track_id: UUID, data: list[str, Any]) -> Track | None:
         if data is None:
             return None
