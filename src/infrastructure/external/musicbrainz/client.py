@@ -1,7 +1,9 @@
 import asyncio
 import logging
+import json
 
 from src.application.interfaces.musicbrainz_client import IMusicBrainzClient
+from src.infrastructure.cache.redis_client import RedisClient
 
 from .circuit_breaker import CircuitBreaker
 from .http_fetcher import MusicBrainzFetcher
@@ -37,6 +39,8 @@ class MusicBrainzClient(IMusicBrainzClient):
         self._inflight: dict[str, asyncio.Future] = {}
         self._inflight_lock = asyncio.Lock()
 
+        self._redis = RedisClient()._client
+
     async def aclose(self) -> None:
         await self._fetcher.aclose()
 
@@ -50,8 +54,15 @@ class MusicBrainzClient(IMusicBrainzClient):
         params_str = str(sorted(params.items())) if params else ""
         return f"{endpoint}:{params_str}"
 
-    async def _get(self, endpoint: str, params: dict | None):
-        cache_key = self._cache_key(endpoint, params)
+    async def _get(self, endpoint: str, params: dict | None, ttl_seconds: int = 86400):
+        cache_key = f"mbz:{self._cache_key(endpoint, params)}"
+
+        cached_data = await self._redis.get(cache_key)
+        if cached_data:
+            logger.debug(f"Cache HIT para {cache_key}")
+            return json.loads(cached_data)
+
+        logger.debug(f"Cache MISS para {cache_key}")
 
         async with self._inflight_lock:
             if cache_key in self._inflight:
@@ -63,6 +74,10 @@ class MusicBrainzClient(IMusicBrainzClient):
 
         try:
             data = await self._breaker.call(self._fetcher.fetch, endpoint, params)
+            
+            if data:
+                await self._redis.setex(cache_key, ttl_seconds, json.dumps(data))
+
             future.set_result(data)
             return data
 

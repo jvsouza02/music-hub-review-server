@@ -8,13 +8,15 @@ from .deps import get_review_service
 from .schema import ReviewCreateRequest, ReviewResponse, ReviewUpdateRequest, ReviewFiltersParams
 from ..auth.deps import get_current_user
 from uuid import UUID
+from fastapi_limiter.depends import RateLimiter
 
 review_router = APIRouter(prefix="/review", tags=["Review"])
 
 @review_router.post(
     "/",
     response_model=ReviewResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))]
 )
 async def create_review(
     data: ReviewCreateRequest,
@@ -86,7 +88,8 @@ async def get_review_by_track(
 @review_router.put(
     "/{review_id}",
     response_model=ReviewResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))]
 )
 async def update_review(
     review_id: UUID, 
@@ -115,7 +118,8 @@ async def update_review(
 
 @review_router.delete(
     "/{review_id}",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    dependencies=[Depends(RateLimiter(times=5, seconds=60))]
 )
 async def delete_review(
     review_id: UUID,
