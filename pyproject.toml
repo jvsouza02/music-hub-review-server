@@ -8,7 +8,6 @@ dependencies = [
     "alembic>=1.18.4",
     "asyncpg>=0.31.0",
     "bcrypt>=5.0.0",
-    "fastapi-limiter>=0.2.0",
     "fastapi[standard]>=0.138.0",
     "greenlet>=3.5.2",
     "pyjwt[crypto]>=2.13.0",

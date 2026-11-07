@@ -49,6 +49,13 @@ class TrackRepository(ITrackRepository):
         return TrackMapper.to_entity(track_model)
 
 
+    async def get_by_mbids(self, mbids: list[str]) -> list[Track]:
+        statement = select(TrackModel).where(TrackModel.mbid.in_(mbids))
+        result = await self._session.execute(statement)
+        
+        return [TrackMapper.to_entity(track) for track in result.scalars().all()]
+
+
     async def get_by_album(self, album_id: UUID) -> list[Track]:
         statement = select(TrackModel).where(TrackModel.album_id == album_id)
 

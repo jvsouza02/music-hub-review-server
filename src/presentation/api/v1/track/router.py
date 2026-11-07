@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from .schema import TrackResponse, TrackFiltersParams
 from .deps import get_track_service
 from src.domain.track.entity import Track
@@ -8,6 +8,16 @@ from uuid import UUID
 
 track_router = APIRouter(prefix="/tracks", tags=["Track"])
 
+
+@track_router.get(
+        "/search",
+        status_code=status.HTTP_200_OK
+)
+async def search_track(
+    track_service: Annotated[TrackService, Depends(get_track_service)],
+    query: Annotated[str, Query()]
+) -> list[dict]:
+    return await track_service.search_tracks(query)
 
 @track_router.get(
     "/{track_id}",
