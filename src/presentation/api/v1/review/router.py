@@ -10,7 +10,7 @@ from ..auth.deps import get_current_user
 from uuid import UUID
 from ..rate_limiter import RateLimiter
 
-review_router = APIRouter(prefix="/review", tags=["Review"])
+review_router = APIRouter(prefix="/reviews", tags=["Review"])
 
 @review_router.post(
     "/",
@@ -18,7 +18,8 @@ review_router = APIRouter(prefix="/review", tags=["Review"])
     status_code=status.HTTP_201_CREATED,
     dependencies=[
         Depends(RateLimiter(max_requests=5, window_seconds=60))
-    ]
+    ],
+    operation_id="createReview"
 )
 async def create_review(
     data: ReviewCreateRequest,
@@ -43,9 +44,10 @@ async def create_review(
 
 
 @review_router.get(
-    "/{review_id}",
+    "/id/{review_id}",
     status_code=status.HTTP_200_OK,
-    response_model=ReviewResponse
+    response_model=ReviewResponse,
+    operation_id="getReviewById"
 )
 async def get_review_by_id(
     review_service: Annotated[ReviewService, Depends(get_review_service)],
@@ -55,9 +57,10 @@ async def get_review_by_id(
 
 
 @review_router.get(
-    "/{user_id}",
+    "/user/{user_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ReviewResponse]
+    response_model=list[ReviewResponse],
+    operation_id="listReviewsByUser"
 )
 async def get_review_by_user(
     review_service: Annotated[ReviewService, Depends(get_review_service)],
@@ -71,9 +74,10 @@ async def get_review_by_user(
     )
 
 @review_router.get(
-    "/{track_id}",
+    "/track/{track_id}",
     status_code=status.HTTP_200_OK,
-    response_model=list[ReviewResponse]
+    response_model=list[ReviewResponse],
+    operation_id="listReviewsByTrack"
 )
 async def get_review_by_track(
     review_service: Annotated[ReviewService, Depends(get_review_service)],
@@ -93,7 +97,8 @@ async def get_review_by_track(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(RateLimiter(max_requests=5, window_seconds=60))
-    ]
+    ],
+    operation_id="updateReview"
 )
 async def update_review(
     review_id: UUID, 
@@ -125,7 +130,8 @@ async def update_review(
     status_code=status.HTTP_200_OK,
     dependencies=[
         Depends(RateLimiter(max_requests=5, window_seconds=60))
-    ]
+    ],
+    operation_id="deleteReview"
 )
 async def delete_review(
     review_id: UUID,

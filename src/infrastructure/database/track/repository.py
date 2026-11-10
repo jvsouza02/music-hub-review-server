@@ -64,7 +64,7 @@ class TrackRepository(ITrackRepository):
         return [TrackMapper.to_entity(track) for track in result.scalars().all()]
 
 
-    async def get_all(self, limit: int, offset: int) -> list[Track]:
+    async def get_all(self, limit: int = 20, offset: int = 0) -> list[Track]:
         statement = (
             select(TrackModel)
             .order_by(TrackModel.average_score.desc())

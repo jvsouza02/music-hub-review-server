@@ -58,7 +58,7 @@ async def refresh(
     refresh_access_cookie(response, new_refresh_access_token)
 
     return LoginResponseSchema(
-        access_token=new_refresh_access_token,
+        access_token=new_access_token,
         message="Token was successfully refreshed"
     )
 

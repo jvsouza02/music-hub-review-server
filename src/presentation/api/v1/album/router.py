@@ -11,13 +11,14 @@ from typing import Annotated
 from uuid import UUID
 
 
-album_router = APIRouter(prefix="/album", tags=["Album"])
+album_router = APIRouter(prefix="/albums", tags=["Album"])
 
 
 @album_router.get(
-    "/{album_id}",
+    "/id/{album_id}",
     response_model=AlbumResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="getAlbumById"
 )
 async def get_album_by_id(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
@@ -27,9 +28,10 @@ async def get_album_by_id(
 
 
 @album_router.get(
-    "/{album_mbid}",
+    "/mbid/{album_mbid}",
     response_model=AlbumResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="getAlbumByMbid"
 )
 async def get_album_by_mbid(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
@@ -41,6 +43,7 @@ async def get_album_by_mbid(
 @album_router.get(
     "/",
     response_model=list[AlbumResponse],
+    operation_id="listAlbums"
 )
 async def get_all_albums(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
@@ -52,7 +55,8 @@ async def get_all_albums(
 @album_router.get(
     "/{album_id}/tracks",
     response_model=list[TrackResponse],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="listAlbumTracks"
 )
 async def get_tracks_by_album(
     track_service: Annotated[TrackService, Depends(get_track_service)],

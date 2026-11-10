@@ -33,10 +33,12 @@ class TrackService():
 
 
     async def search_tracks(self, query: str) -> list[dict]:
+        smart_query = self._build_smart_query(query)
+
         mbz_results = await self._musicbrainz_client.search(
-            query=query, 
+            query=smart_query, 
             entity_type="recording", 
-            limit=10
+            limit=25
         )
         
         if not mbz_results:
@@ -78,4 +80,22 @@ class TrackService():
 
     async def get_all_tracks(self, limit: int, offset: int) -> list[Track]:
          return await self._track_repository.get_all(limit, offset)
+
+
+    def _build_smart_query(self, user_query: str) -> str:
+        clean_query = "".join(c for c in user_query if c.isalnum() or c.isspace()).strip()
+        terms = clean_query.split()
+        
+        if not terms:
+            return ""
+
+        conditions = []
+        for term in terms:
+            conditions.append(f"(recording:{term} OR artist:{term} OR release:{term})")
+        
+        flexible_query = " AND ".join(conditions)
+
+        exact_boost = f'recording:"{clean_query}"^2'
+
+        return f"({exact_boost}) OR ({flexible_query})"
 

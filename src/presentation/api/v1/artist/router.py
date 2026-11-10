@@ -10,12 +10,13 @@ from src.domain.album.entity import Album
 from typing import Annotated
 from uuid import UUID
 
-artist_router = APIRouter(prefix="/artist", tags=["Artist"])
+artist_router = APIRouter(prefix="/artists", tags=["Artist"])
 
 @artist_router.get(
-    "/{artist_id}",
+    "/id/{artist_id}",
     response_model=ArtistResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="getArtistById"
 )
 async def get_artist_by_id(
     artist_service: Annotated[ArtistService, Depends(get_artist_service)],
@@ -25,9 +26,10 @@ async def get_artist_by_id(
 
 
 @artist_router.get(
-    "/{artist_mbid}",
+    "/mbid/{artist_mbid}",
     response_model=ArtistResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="getArtistByMbid"
 )
 async def get_artist_by_mbid(
     artist_service: Annotated[ArtistService, Depends(get_artist_service)],
@@ -39,7 +41,8 @@ async def get_artist_by_mbid(
 @artist_router.get(
         "{artist_id}/albums",
         response_model=list[AlbumResponse],
-        status_code=status.HTTP_200_OK
+        status_code=status.HTTP_200_OK,
+        operation_id="listArtistAlbums"
 )
 async def get_artist_albums(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
@@ -51,7 +54,8 @@ async def get_artist_albums(
 @artist_router.get(
     "/",
     response_model=list[ArtistResponse],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="listArtists"
 )
 async def get_all_artists(
     artist_service: Annotated[ArtistService, Depends(get_artist_service)],

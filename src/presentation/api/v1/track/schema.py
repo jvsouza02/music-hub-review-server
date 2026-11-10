@@ -11,7 +11,7 @@ class TrackResponse(BaseModel):
     title: str
     position: int
     duration_ms: int | None
-    avegare_score: Decimal | None
+    average_score: Decimal | None
     review_count: int
 
     model_config = ConfigDict(from_attributes=True)

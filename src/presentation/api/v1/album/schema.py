@@ -11,7 +11,7 @@ class AlbumResponse(BaseModel):
     title: str
     release_date: str
     total_tracks: int
-    avegare_score: Decimal | None
+    average_score: Decimal | None
     review_count: int
 
     model_config = ConfigDict(from_attributes=True)

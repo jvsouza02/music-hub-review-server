@@ -59,7 +59,7 @@ class AuthService:
         if not user_id:
             raise InvalidCredentialsException()
 
-        saved_user = self._user_repository.get_by_id(UUID(user_id))
+        saved_user = await self._user_repository.get_by_id(UUID(user_id))
         if not saved_user:
              raise InvalidCredentialsException()
 

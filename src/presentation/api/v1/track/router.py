@@ -11,7 +11,8 @@ track_router = APIRouter(prefix="/tracks", tags=["Track"])
 
 @track_router.get(
         "/search",
-        status_code=status.HTTP_200_OK
+        status_code=status.HTTP_200_OK,
+        operation_id="searchTracks"
 )
 async def search_track(
     track_service: Annotated[TrackService, Depends(get_track_service)],
@@ -20,9 +21,10 @@ async def search_track(
     return await track_service.search_tracks(query)
 
 @track_router.get(
-    "/{track_id}",
+    "/id/{track_id}",
     response_model=TrackResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="getTrackById"
 )
 async def get_track_by_id(
     track_service: Annotated[TrackService, Depends(get_track_service)],
@@ -32,9 +34,10 @@ async def get_track_by_id(
 
 
 @track_router.get(
-    "/{track_mbid}",
+    "/mbid/{track_mbid}",
     response_model=TrackResponse,
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="getTrackByMbid"
 )
 async def get_track_by_mbid(
     track_service: Annotated[TrackService, Depends(get_track_service)],
@@ -44,21 +47,10 @@ async def get_track_by_mbid(
 
 
 @track_router.get(
-    "/{album_id}",
-    response_model=list[TrackResponse],
-    status_code=status.HTTP_200_OK
-)
-async def get_tracks_by_album(
-    track_service: Annotated[TrackService, Depends(get_track_service)],
-    album_id: UUID
-) -> list[Track]:
-    return await track_service.get_track_by_album(album_id)
-
-
-@track_router.get(
     "/",
     response_model=list[Track],
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    operation_id="listTracks"
 )
 async def get_all_tracks(
     track_service: Annotated[TrackService, Depends(get_track_service)],

@@ -6,12 +6,12 @@ from fastapi import Query
 
 class ReviewCreateRequest(BaseModel):
     track_mbid: Annotated[str, Field(min_length=36, max_length=36)]
-    score: Annotated[float, Field(ge=0.5, le=5.0)]
-    body: str | None = None
+    score: Annotated[float, Field(ge=0.5, le=5.0, multiple_of=0.5)]
+    body: Annotated[str | None, Field(max_length=5000)] = None
 
 class ReviewUpdateRequest(BaseModel):
-    new_score_value: Annotated[float | None , Field(ge=0.5, le=5.0)] = None
-    new_body: str | None = None
+    new_score_value: Annotated[float | None, Field(ge=0.5, le=5.0, multiple_of=0.5)] = None
+    new_body: Annotated[str | None, Field(max_length=5000)] = None
 
 class ReviewResponse(BaseModel):
     id: UUID
