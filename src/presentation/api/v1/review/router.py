@@ -65,7 +65,7 @@ async def get_review_by_id(
 async def get_review_by_user(
     review_service: Annotated[ReviewService, Depends(get_review_service)],
     user_id: UUID,
-    filters: Annotated[ReviewFiltersParams, Depends()]
+    filters: Annotated[ReviewFiltersParams, Query()]
 ) -> list[Review]:
     return await review_service.get_review_by_user(
         user_id=user_id,
@@ -82,7 +82,7 @@ async def get_review_by_user(
 async def get_review_by_track(
     review_service: Annotated[ReviewService, Depends(get_review_service)],
     track_id: UUID,
-    filters: Annotated[ReviewFiltersParams, Depends()]
+    filters: Annotated[ReviewFiltersParams, Query()]
 ) -> list[Review]:
     return await review_service.get_review_by_track(
         track_id=track_id,
@@ -92,7 +92,7 @@ async def get_review_by_track(
 
 
 @review_router.put(
-    "/{review_id}",
+    "/id/{review_id}",
     response_model=ReviewResponse,
     status_code=status.HTTP_200_OK,
     dependencies=[
@@ -126,8 +126,8 @@ async def update_review(
 
 
 @review_router.delete(
-    "/{review_id}",
-    status_code=status.HTTP_200_OK,
+    "/id/{review_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[
         Depends(RateLimiter(max_requests=5, window_seconds=60))
     ],
@@ -138,7 +138,7 @@ async def delete_review(
     current_user: Annotated[User, Depends(get_current_user)],
     background_task: BackgroundTasks,
     review_service: Annotated[ReviewService, Depends(get_review_service)]
-) -> Review:
+):
     deleted_review, old_score_float = await review_service.delete_review(
         review_id=review_id,
         current_user_id=current_user.id
@@ -149,5 +149,3 @@ async def delete_review(
         deleted_review.track_id,
         old_score_float
     )
-
-    return deleted_review

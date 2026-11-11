@@ -1,8 +1,5 @@
-from pydantic import BaseModel, ConfigDict
-from fastapi import Query
+from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
-from decimal import Decimal
-from typing import Annotated
 
 class ArtistResponse(BaseModel):
     id: UUID
@@ -10,18 +7,22 @@ class ArtistResponse(BaseModel):
     name: str
     disambiguation: str | None = None
     country: str | None = None
-    average_score: Decimal | None = None
+    average_score: float | None = None
     review_count: int
 
     model_config = ConfigDict(from_attributes=True)
 
 
 class ArtistFiltersParams(BaseModel):
-    limit: Annotated[
-        int,
-        Query(ge=1, le=100, description="Quantidade de itens")
-    ] = 20,
-    offset: Annotated[
-        int,
-        Query(ge=0, description="Pular X itens")
-    ] = 0,
+    limit: int = Field(
+        default=20,
+        ge=1,
+        le=100,
+        description="Quantidade de itens"
+    )
+
+    offset: int = Field(
+        default=0,
+        ge=0,
+        description="Pular X itens"
+    )

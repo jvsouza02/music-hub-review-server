@@ -86,20 +86,6 @@ class UserPublicSchema(BaseModel):
             description="Username to be displayed in the application.",
         )
     ]
-    role: Annotated[
-        UserRole,
-        Field(
-            title="User role",
-            description="This shows the user role in the application",
-        )
-    ]
-    is_active: Annotated[
-        bool,
-        Field(
-            title="User Status",
-            description="This shows if the User is active or deleted in the application."
-        )
-    ]
 
     model_config = ConfigDict(from_attributes=True)
 

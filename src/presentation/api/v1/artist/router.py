@@ -2,7 +2,7 @@ from .deps import get_artist_service
 from src.application.artist.services import ArtistService
 from src.application.album.services import AlbumService
 from src.domain.artist.entity import Artist
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 from .schema import ArtistResponse, ArtistFiltersParams
 from src.presentation.api.v1.album.schema import AlbumResponse
 from src.presentation.api.v1.album.deps import get_album_service
@@ -39,7 +39,7 @@ async def get_artist_by_mbid(
 
 
 @artist_router.get(
-        "{artist_id}/albums",
+        "/{artist_id}/albums",
         response_model=list[AlbumResponse],
         status_code=status.HTTP_200_OK,
         operation_id="listArtistAlbums"
@@ -59,6 +59,6 @@ async def get_artist_albums(
 )
 async def get_all_artists(
     artist_service: Annotated[ArtistService, Depends(get_artist_service)],
-    filters: Annotated[ArtistFiltersParams, Depends()]
+    filters: Annotated[ArtistFiltersParams, Query()]
 ) -> list[Artist]:
     return await artist_service.get_all_artist(filters.limit, filters.offset)

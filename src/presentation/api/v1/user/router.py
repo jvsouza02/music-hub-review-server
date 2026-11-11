@@ -46,7 +46,6 @@ async def get_me(
 async def get_user(
      user_id: Annotated[UUID, Path()],
      user_service: Annotated[UserService, Depends(get_user_service)],
-     _=Depends(get_current_user)
 ):
      return await user_service.get_user(user_id)
 

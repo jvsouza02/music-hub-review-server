@@ -12,7 +12,11 @@ from .constants import REFRESH_TOKEN_KEY
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@auth_router.post("/login", response_model=LoginResponseSchema)
+@auth_router.post(
+        "/login",
+        response_model=LoginResponseSchema,
+        operation_id="login"        
+)
 async def login(
         response: Response,
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -31,7 +35,11 @@ async def login(
     )
 
     
-@auth_router.post("/refresh", response_model=LoginResponseSchema)
+@auth_router.post(
+        "/refresh",
+        response_model=LoginResponseSchema,
+        operation_id="refreshSession"
+)
 async def refresh(
     request: Request,
     response: Response,
@@ -63,7 +71,10 @@ async def refresh(
     )
 
 
-@auth_router.post("/logout")
+@auth_router.post(
+        "/logout",
+        operation_id="logout"
+)
 async def logout(
     request: Request,
     response: Response,

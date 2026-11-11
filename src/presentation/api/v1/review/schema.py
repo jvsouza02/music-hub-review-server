@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import Annotated, Any
 from uuid import UUID
 from datetime import datetime
-from fastapi import Query
 
 class ReviewCreateRequest(BaseModel):
     track_mbid: Annotated[str, Field(min_length=36, max_length=36)]
@@ -33,11 +32,15 @@ class ReviewResponse(BaseModel):
 
 
 class ReviewFiltersParams(BaseModel):
-    limit: Annotated[
-        int,
-        Query(ge=1, le=100, description="Quantidade de itens")
-    ] = 20,
-    offset: Annotated[
-        int,
-        Query(ge=0, description="Pular X itens")
-    ] = 0,
+    limit: int = Field(
+        default=20,
+        ge=1,
+        le=100,
+        description="Quantidade de itens"
+    )
+
+    offset: int = Field(
+        default=0,
+        ge=0,
+        description="Pular X itens"
+    )

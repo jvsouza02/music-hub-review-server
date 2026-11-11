@@ -1,4 +1,4 @@
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 from .deps import get_album_service
 from .schema import AlbumResponse, AlbumFiltersParams
 from src.application.album.services import AlbumService
@@ -47,7 +47,7 @@ async def get_album_by_mbid(
 )
 async def get_all_albums(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
-    filters: Annotated[AlbumFiltersParams, Depends()]
+    filters: Annotated[AlbumFiltersParams, Query()]
 ) -> list[Album]:
     return await album_service.get_all_albums(filters.limit, filters.offset)
 
