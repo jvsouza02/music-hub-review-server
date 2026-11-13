@@ -9,6 +9,7 @@ from .cookies import (set_access_cookie, refresh_access_cookie,
 clear_auth_cookie)
 from src.core.security import decode_token
 from .constants import REFRESH_TOKEN_KEY
+import jwt
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
@@ -72,28 +73,38 @@ async def refresh(
 
 
 @auth_router.post(
-        "/logout",
-        operation_id="logout"
+    "/logout",
+    operation_id="logout",
 )
 async def logout(
     request: Request,
     response: Response,
     auth_service: Annotated[
         AuthService,
-        Depends(get_auth_service)
-    ]
+        Depends(get_auth_service),
+    ],
 ) -> dict[str, str]:
+
     refresh_token = request.cookies.get(REFRESH_TOKEN_KEY)
-    refresh_jti = None
+    family_id = None
 
     if refresh_token:
         try:
             payload = decode_token(refresh_token)
-            refresh_jti  = payload.get("jti")
-        except Exception:
+
+            if payload.get("type") == "refresh":
+                candidate_family = payload.get("family")
+
+                if isinstance(candidate_family, str):
+                    family_id = candidate_family
+
+        except (jwt.PyJWTError, ValueError, TypeError):
             pass
 
-    await auth_service.logout(refresh_jti)
+    await auth_service.logout(family_id)
+
     clear_auth_cookie(response)
-    
-    return {"message": "User succesfully logged out"}
+
+    return {
+        "message": "User successfully logged out"
+    }

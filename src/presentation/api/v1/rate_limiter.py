@@ -18,7 +18,7 @@ class RateLimiter:
         """
 
     async def __call__(self, request: Request):
-        redis = RedisClient().client
+        redis = RedisClient()._client
 
         client_ip = request.client.host if request.client else "127.0.0.1"
         cache_key = f"rate_limit:{client_ip}:{request.url.path}"

@@ -23,7 +23,7 @@ class Album(BaseModel):
         description="Formato ISO YYYY-MM-DD ou YYYY"
     )
     total_tracks: int = Field(ge=0)
-    avegare_score: Decimal | None = Field(default=None, ge=0.0, le=5.0)
+    average_score: Decimal | None = Field(default=None, ge=0.0, le=5.0)
     review_count: int = Field(default=0, ge=0)
     metadata_updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)

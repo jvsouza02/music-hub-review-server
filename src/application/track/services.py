@@ -66,7 +66,7 @@ class TrackService():
                 "mbid": mbid,
                 "title": item.get("title"),
                 "artist_name": artist_name,
-                "album_name": album_name,
+                "album_title": album_name,
                 "average_score": local_track.average_score if local_track else None,
                 "review_count": local_track.review_count if local_track else 0,
             })
