@@ -23,13 +23,70 @@ class TrackService():
         return track
 
 
-    async def get_track_by_mbid(self, track_mbid: str) -> Track:
-            track = await self._track_repository.get_by_mbid(track_mbid)
-    
-            if track is None: 
-                raise TrackNotFoundException()
-    
-            return track
+    async def get_track_by_mbid(self, track_mbid: str) -> dict:
+        mbz_data = await self._musicbrainz_client.get_recording(
+            track_mbid,
+            inc="releases artists"
+        )
+
+        if mbz_data is None:
+            raise TrackNotFoundException()
+
+        local_track = await self._track_repository.get_by_mbid(track_mbid)
+
+        artist_name = self._extract_artist_name(
+            mbz_data.get("artist-credit") or []
+        )
+
+        releases = mbz_data.get("releases") or []
+        release = releases[0] if releases else {}
+
+        album_title = release.get("title")
+
+        position = None
+
+        for release_item in releases:
+            for medium in release_item.get("media") or []:
+                tracks = medium.get("tracks") or medium.get("track-list") or []
+
+                for release_track in tracks:
+                    recording = release_track.get("recording") or {}
+
+                    if recording.get("id") == track_mbid:
+                        raw_position = (
+                            release_track.get("position")
+                            or release_track.get("number")
+                        )
+
+                        try:
+                            position = int(raw_position)
+                        except (TypeError, ValueError):
+                            position = None
+
+                        break
+
+                if position is not None:
+                    break
+
+            if position is not None:
+                break
+
+        return {
+            "id": local_track.id if local_track else None,
+            "mbid": mbz_data["id"],
+            "album_id": local_track.album_id if local_track else None,
+            "title": mbz_data["title"],
+            "artist_name": artist_name,
+            "album_title": album_title,
+            "position": position,
+            "duration_ms": mbz_data.get("length"),
+            "average_score": (
+                float(local_track.average_score)
+                if local_track and local_track.average_score is not None
+                else None
+            ),
+            "review_count": local_track.review_count if local_track else 0,
+        }
 
 
     async def search_tracks(self, query: str) -> list[dict]:
@@ -98,4 +155,23 @@ class TrackService():
         exact_boost = f'recording:"{clean_query}"^2'
 
         return f"({exact_boost}) OR ({flexible_query})"
+
+
+    @staticmethod
+    def _extract_artist_name(artist_credit: list) -> str:
+        parts = []
+
+        for credit in artist_credit:
+            if not isinstance(credit, dict):
+                continue
+
+            name = credit.get("name")
+
+            if not name:
+                artist = credit.get("artist") or {}
+                name = artist.get("name", "")
+
+            parts.append(f"{name}{credit.get('joinphrase', '')}")
+
+        return "".join(parts).strip() or "Unknown Artist"
 

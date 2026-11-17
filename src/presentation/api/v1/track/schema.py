@@ -23,6 +23,18 @@ class TrackSearchResult(BaseModel):
     average_score: float | None
     review_count: int | None
 
+class TrackDetailsResponse(BaseModel):
+    id: UUID | None = None
+    mbid: UUID
+    album_id: UUID | None = None
+    title: str
+    artist_name: str
+    album_title: str | None = None
+    position: int | None = None
+    duration_ms: int | None = None
+    average_score: float | None = None
+    review_count: int = 0
+
 class TrackFiltersParams(BaseModel):
     limit: int = Field(
         default=20,

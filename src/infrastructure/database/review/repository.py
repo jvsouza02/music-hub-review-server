@@ -27,9 +27,9 @@ class ReviewRepository(IReviewRepository):
 
     async def get_by_id(self, review_id: UUID) -> Review | None:
         statement = select(ReviewModel).where(
-            ReviewModel.review_id == review_id,
-            Review.is_active == True
-        )
+        ReviewModel.id == review_id,
+        ReviewModel.is_active.is_(True)
+    )
 
         result = await self._session.execute(statement)
         review_model = result.scalar_one_or_none()
@@ -43,8 +43,10 @@ class ReviewRepository(IReviewRepository):
     async def get_by_user(self, user_id: UUID, limit: int, offset: int) -> list[Review]:
         statement = select(ReviewModel).where(
             ReviewModel.user_id == user_id,
-            Review.is_active == True
-        ).order_by(ReviewModel.created_at.desc()).limit(limit).offset(offset)
+            ReviewModel.is_active.is_(True)
+        ).order_by(
+            ReviewModel.created_at.desc()
+        ).limit(limit).offset(offset)
         
         result = await self._session.execute(statement)
 
@@ -54,8 +56,10 @@ class ReviewRepository(IReviewRepository):
     async def get_by_track(self, track_id: UUID, limit: int, offset: int) -> list[Review]:
         statement = select(ReviewModel).where(
             ReviewModel.track_id == track_id,
-            Review.is_active == True
-        ).order_by(ReviewModel.created_at.desc()).limit(limit).offset(offset)
+            ReviewModel.is_active.is_(True)
+        ).order_by(
+            ReviewModel.created_at.desc()
+        ).limit(limit).offset(offset)
 
         result = await self._session.execute(statement)
 
@@ -66,7 +70,7 @@ class ReviewRepository(IReviewRepository):
         statement = select(ReviewModel).where(
             ReviewModel.user_id == user_id,
             ReviewModel.track_id == track_id,
-            ReviewModel.is_active == True
+            ReviewModel.is_active.is_(True)
         )
 
         result = await self._session.execute(statement)

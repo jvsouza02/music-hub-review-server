@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status, Query
-from .schema import TrackResponse, TrackFiltersParams, TrackSearchResult
+from .schema import TrackResponse, TrackFiltersParams, TrackSearchResult, TrackDetailsResponse
 from .deps import get_track_service
 from src.domain.track.entity import Track
 from src.application.track.services import TrackService
@@ -36,15 +36,15 @@ async def get_track_by_id(
 
 @track_router.get(
     "/mbid/{track_mbid}",
-    response_model=TrackResponse,
+    response_model=TrackDetailsResponse,
     status_code=status.HTTP_200_OK,
     operation_id="getTrackByMbid"
 )
 async def get_track_by_mbid(
     track_service: Annotated[TrackService, Depends(get_track_service)],
     track_mbid: UUID
-) -> Track:
-    return await track_service.get_track_by_id(track_mbid)
+) -> dict:
+    return await track_service.get_track_by_mbid(str(track_mbid))
 
 
 @track_router.get(

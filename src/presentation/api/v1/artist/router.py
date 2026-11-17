@@ -35,7 +35,7 @@ async def get_artist_by_mbid(
     artist_service: Annotated[ArtistService, Depends(get_artist_service)],
     artist_mbid: str
 ) -> Artist:
-    return await artist_service.get_artist_by_mbid(artist_mbid)
+    return await artist_service.get_artist_by_mbid(str(artist_mbid))
 
 
 @artist_router.get(

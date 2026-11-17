@@ -37,7 +37,7 @@ async def get_album_by_mbid(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
     album_mbid: UUID
 ) -> Album:
-    return await album_service.get_album_by_mbid(album_mbid)
+    return await album_service.get_album_by_mbid(str(album_mbid))
 
 
 @album_router.get(
