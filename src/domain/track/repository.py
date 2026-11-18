@@ -13,7 +13,15 @@ class ITrackRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_by_id_with_album_mbid(self, track_id: UUID) -> tuple[Track, str] | None:
+        ...
+
+    @abstractmethod
     async def get_by_mbid(self, mbid: str) -> Track | None:
+        ...
+
+    @abstractmethod
+    async def get_by_mbids_with_album_mbids(self, mbid: str) -> list[tuple[Track, str]]:
         ...
 
     @abstractmethod
@@ -22,6 +30,10 @@ class ITrackRepository(ABC):
 
     @abstractmethod
     async def get_all(self, limit: int, offset: int) -> list[Track]:
+        ...
+
+    @abstractmethod
+    async def get_all_with_album_mbids(self, limit: int, offset: int) -> list[tuple[Track, str]]:
         ...
 
     @abstractmethod

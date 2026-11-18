@@ -7,6 +7,7 @@ class TrackResponse(BaseModel):
     id: UUID
     mbid: str
     album_id: UUID
+    album_mbid: UUID
     title: str
     position: int
     duration_ms: int | None
@@ -20,6 +21,7 @@ class TrackSearchResult(BaseModel):
     title: str
     artist_name: str
     album_title: str | None
+    album_mbid: UUID | None
     average_score: float | None
     review_count: int | None
 
@@ -30,6 +32,7 @@ class TrackDetailsResponse(BaseModel):
     title: str
     artist_name: str
     album_title: str | None = None
+    album_mbid: UUID | None
     position: int | None = None
     duration_ms: int | None = None
     average_score: float | None = None

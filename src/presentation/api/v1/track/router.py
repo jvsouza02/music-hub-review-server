@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, status, Query
 from .schema import TrackResponse, TrackFiltersParams, TrackSearchResult, TrackDetailsResponse
 from .deps import get_track_service
-from src.domain.track.entity import Track
 from src.application.track.services import TrackService
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID
 
 track_router = APIRouter(prefix="/tracks", tags=["Track"])
@@ -30,7 +29,7 @@ async def search_track(
 async def get_track_by_id(
     track_service: Annotated[TrackService, Depends(get_track_service)],
     track_id: UUID
-) -> Track:
+) -> dict[str, Any]:
     return await track_service.get_track_by_id(track_id)
 
 
@@ -56,5 +55,5 @@ async def get_track_by_mbid(
 async def get_all_tracks(
     track_service: Annotated[TrackService, Depends(get_track_service)],
     filters: Annotated[TrackFiltersParams, Query()]
-) -> list[Track]:
+) -> list[dict[str, Any]]:
     return await track_service.get_all_tracks(filters.limit, filters.offset)
