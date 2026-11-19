@@ -42,7 +42,10 @@ class MusicBrainzClient(IMusicBrainzClient):
         self._redis = RedisClient()._client
 
     async def aclose(self) -> None:
-        await self._fetcher.aclose()
+        try:
+            await self._fetcher.aclose()
+        finally:
+            await self._redis.close()
 
     async def __aenter__(self):
         return self

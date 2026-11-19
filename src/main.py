@@ -4,10 +4,29 @@ from fastapi.responses import JSONResponse
 from src.presentation.api.v1.router import api_v1_router
 from src.domain.global_exception import GlobalException
 from src.core.config import settings
+from contextlib import asynccontextmanager
+from collections.abc import AsyncGenerator
+from src.infrastructure.external.musicbrainz.client import MusicBrainzClient
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    musicbrainz_client = MusicBrainzClient(
+        app_name=settings.PROJECT_NAME,
+        app_version=settings.VERSION,
+        contact_email=settings.ADMIN_EMAIL,
+    )
+
+    app.state.musicbrainz_client = musicbrainz_client
+
+    try:
+        yield
+    finally:
+        await musicbrainz_client.aclose()
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
+    lifespan=lifespan
 )
 
 app.add_middleware(
