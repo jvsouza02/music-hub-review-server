@@ -13,6 +13,18 @@ class AlbumResponse(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+
+class AlbumSearchResult(BaseModel):
+    mbid: UUID
+    title: str
+    artist_name: str | None = None
+    artist_mbid: UUID | None = None
+    release_date: str | None = None
+    total_tracks: int | None = None
+    average_score: float | None = None
+    review_count: int = 0
+
+
 class AlbumFiltersParams(BaseModel):
     limit: int = Field(
         default=20,

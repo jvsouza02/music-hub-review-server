@@ -17,6 +17,10 @@ class IAlbumRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_by_mbids(self, albums_mbids: list[str]) -> list[Album]:
+        ...
+
+    @abstractmethod
     async def get_by_artist(self, artist_id: UUID) -> list[Album]:
         ...
 

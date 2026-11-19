@@ -48,6 +48,23 @@ class ArtistRepository(IArtistRepository):
             return None
 
         return ArtistMapper.to_entity(artist_model)
+
+
+    async def get_by_mbids(self, artist_mbids: list[Artist]) -> list[Artist]:
+        if not artist_mbids:
+            return None
+
+        statement = (
+            select(ArtistModel)
+            .where(ArtistModel.mbid.in_(artist_mbids))
+        )
+
+        result = await self._session.execute(statement)
+
+        return [
+            ArtistMapper.to_entity(artist)
+            for artist in result.scalars().all()
+        ]
     
 
     async def get_all(self, limit: int = 20, offset: int = 0) -> list[Artist]:

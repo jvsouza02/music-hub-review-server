@@ -13,6 +13,15 @@ class ArtistResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ArtistSearchResult(BaseModel):
+    mbid: UUID
+    name: str
+    disambiguation: str | None = None
+    country: str | None = None
+    average_score: float | None = None
+    review_count: int = 0
+
+
 class ArtistFiltersParams(BaseModel):
     limit: int = Field(
         default=20,

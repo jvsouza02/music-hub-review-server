@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, Depends, Query
 from .deps import get_album_service
-from .schema import AlbumResponse, AlbumFiltersParams
+from .schema import AlbumResponse, AlbumFiltersParams, AlbumSearchResult
 from src.application.album.services import AlbumService
 from src.application.track.services import TrackService
 from src.domain.track.entity import Track
@@ -12,6 +12,19 @@ from uuid import UUID
 
 
 album_router = APIRouter(prefix="/albums", tags=["Album"])
+
+
+@album_router.get(
+    "/search",
+    response_model=list[AlbumSearchResult],
+    status_code=status.HTTP_200_OK,
+    operation_id="searchAlbums"
+)
+async def search_albums(
+    album_service: Annotated[AlbumService, Depends(get_album_service)],
+    query: Annotated[str, Query(min_length=1, max_length=100)]
+) -> list[dict]:
+    return await album_service.search_albums(query)
 
 
 @album_router.get(

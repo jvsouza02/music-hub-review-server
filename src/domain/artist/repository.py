@@ -16,6 +16,11 @@ class IArtistRepository(ABC):
     async def get_by_mbid(self, artist_mbid: str) -> Artist | None:
         ...
 
+
+    @abstractmethod
+    async def get_by_mbids(self, artist_mbids: list[str]) -> list[Artist]:
+        ...
+
     @abstractmethod
     async def get_all(self) -> list[Artist]:
         ...

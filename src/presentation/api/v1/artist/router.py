@@ -3,7 +3,7 @@ from src.application.artist.services import ArtistService
 from src.application.album.services import AlbumService
 from src.domain.artist.entity import Artist
 from fastapi import APIRouter, status, Depends, Query
-from .schema import ArtistResponse, ArtistFiltersParams
+from .schema import ArtistResponse, ArtistFiltersParams, ArtistSearchResult
 from src.presentation.api.v1.album.schema import AlbumResponse
 from src.presentation.api.v1.album.deps import get_album_service
 from src.domain.album.entity import Album
@@ -11,6 +11,20 @@ from typing import Annotated
 from uuid import UUID
 
 artist_router = APIRouter(prefix="/artists", tags=["Artist"])
+
+
+@artist_router.get(
+    "/search",
+    response_model=list[ArtistSearchResult],
+    status_code=status.HTTP_200_OK,
+    operation_id="searchArtists"
+)
+async def search_artists(
+    artist_service: Annotated[ArtistService, Depends(get_artist_service)],
+    query: Annotated[str, Query(min_length=1, max_length=100)]
+) -> list[dict]:
+    return await artist_service.search_artists(query)
+
 
 @artist_router.get(
     "/id/{artist_id}",

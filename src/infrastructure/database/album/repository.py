@@ -49,6 +49,23 @@ class AlbumRepository(IAlbumRepository):
         return AlbumMapper.to_entity(album_model)
 
 
+    async def get_by_mbids(self, albums_mbids: list[str]) -> list[Album]:
+        if not albums_mbids:
+            return None
+
+        statement = (
+            select(AlbumModel)
+            .where(AlbumModel.mbid.in_(albums_mbids))
+        )
+
+        result = await self._session.execute(statement)
+
+        return [
+            AlbumMapper.to_entity(album)
+            for album in result.scalars().all()
+        ]
+
+
     async def get_by_artist(self, artist_id: UUID) -> list[Album]:
         statement = (
             select(AlbumModel)
