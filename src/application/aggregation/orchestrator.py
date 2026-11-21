@@ -127,42 +127,56 @@ class AggregationOrchestrator:
     @staticmethod
     async def _cascade_album_and_artist(track, track_repo, album_repo, artist_repo) -> None:
         album = await album_repo.get_by_id(track.album_id)
+
         if album:
             album_tracks = await track_repo.get_by_album(album.id)
-            
+
             track_data_list = [
-                TrackScoreData(average=t.average_score, review_count=t.review_count)
-                for t in album_tracks 
+                TrackScoreData(
+                    average=t.average_score,
+                    review_count=t.review_count
+                )
+                for t in album_tracks
                 if t.review_count > 0 and t.average_score is not None
             ]
 
-            if track_data_list:
-                album_agg = ScoreAggregationService.calculate_album_average(
-                    tracks=track_data_list,
-                    total_tracks=album.total_tracks or len(album_tracks)
-                )
-                
+            album_agg = ScoreAggregationService.calculate_album_average(
+                tracks=track_data_list,
+                total_tracks=album.total_tracks or len(album_tracks)
+            )
+
+            if (
+                album.average_score != album_agg.average
+                or album.review_count != album_agg.reviewed_count
+            ):
                 await album_repo.update(album.id, {
                     "average_score": album_agg.average,
                     "review_count": album_agg.reviewed_count
                 })
 
             artist = await artist_repo.get_by_id(album.artist_id)
+
             if artist:
                 artist_albums = await album_repo.get_by_artist(artist.id)
-                
+
                 album_data_list = [
-                    AlbumScoreData(average=a.average_score, reviewed_tracks=a.review_count)
-                    for a in artist_albums 
+                    AlbumScoreData(
+                        average=a.average_score,
+                        reviewed_tracks=a.review_count
+                    )
+                    for a in artist_albums
                     if a.review_count > 0 and a.average_score is not None
                 ]
 
-                if album_data_list:
-                    artist_agg = ScoreAggregationService.calculate_artist_average(
-                        albums=album_data_list,
-                        total_albums=len(artist_albums)
-                    )
-                    
+                artist_agg = ScoreAggregationService.calculate_artist_average(
+                    albums=album_data_list,
+                    total_albums=len(artist_albums)
+                )
+
+                if (
+                    artist.average_score != artist_agg.average
+                    or artist.review_count != artist_agg.reviewed_count
+                ):
                     await artist_repo.update(artist.id, {
                         "average_score": artist_agg.average,
                         "review_count": artist_agg.reviewed_count
