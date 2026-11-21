@@ -50,9 +50,9 @@ class ArtistRepository(IArtistRepository):
         return ArtistMapper.to_entity(artist_model)
 
 
-    async def get_by_mbids(self, artist_mbids: list[Artist]) -> list[Artist]:
+    async def get_by_mbids(self, artist_mbids: list[str]) -> list[Artist]:
         if not artist_mbids:
-            return None
+            return []
 
         statement = (
             select(ArtistModel)

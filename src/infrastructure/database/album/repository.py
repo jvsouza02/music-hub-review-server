@@ -51,7 +51,7 @@ class AlbumRepository(IAlbumRepository):
 
     async def get_by_mbids(self, albums_mbids: list[str]) -> list[Album]:
         if not albums_mbids:
-            return None
+            return []
 
         statement = (
             select(AlbumModel)

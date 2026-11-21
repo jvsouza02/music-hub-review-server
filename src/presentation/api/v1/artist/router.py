@@ -62,7 +62,7 @@ async def get_artist_albums(
     album_service: Annotated[AlbumService, Depends(get_album_service)],
     artist_id: UUID
 ) -> list[Album]:
-    return await album_service.get_album_by_artist(artist_id)
+    return await album_service.get_albums_by_artist(artist_id)
 
 
 @artist_router.get(
